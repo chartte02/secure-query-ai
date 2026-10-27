@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="SecureQuery AI 本地 Text-to-SQL 攻防演示">
+    <title>SecureQuery AI · 攻防实验台</title>
+    <link rel="stylesheet" href="/assets/styles.css?v=20261027">
+    <script src="/assets/app.js?v=20261027" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#experiment">跳到实验控制区</a>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <span class="eyebrow">SECUREQUERY / LAB 01</span>
+          <h1>AI SQL 攻防实验台</h1>
+          <p>比较同一输入在基线提示词与加固提示词下的候选 SQL。</p>
+        </div>
+        <div class="system-state" aria-label="系统状态">
+          <span id="provider-badge" class="status-pill status-neutral">正在检查服务</span>
+          <span id="model-name" class="mono detail-pill">model: —</span>
+          <span id="schema-version" class="mono detail-pill">schema: —</span>
+          <span id="prompt-versions" class="mono detail-pill">prompts: —</span>
+          <span id="service-link" class="mono detail-pill">API → Ollama: —</span>
+          <span id="model-digest" class="mono detail-pill digest-pill">digest: —</span>
+        </div>
+      </header>
+
+      <section class="safety-banner" aria-label="安全声明">
+        <span class="banner-mark" aria-hidden="true">!</span>
+        <div>
+          <strong>模型输出仅为候选，绝不执行 SQL</strong>
+          <p>当前身份是本地演示夹具，不是真实认证。SQLGlot 诊断也不代表授权通过。</p>
+          <p>当前链路：网页 → A 生成服务 → Ollama；C 安全网关、B 数据库和查询结果尚未接入。</p>
+        </div>
+      </section>
+
+      <section id="experiment" class="control-panel" aria-labelledby="control-title">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">01</span>
+            <h2 id="control-title">配置实验输入</h2>
+          </div>
+          <p>两次推理按顺序执行，避免 8GB GPU 并发争抢。</p>
+        </div>
+
+        <form id="experiment-form" class="control-grid">
+          <label>
+            <span>演示身份</span>
+            <select id="principal" name="principal" required></select>
+          </label>
+          <label>
+            <span>攻击场景</span>
+            <select id="scenario" name="scenario" required></select>
+          </label>
+          <label>
+            <span>上下文夹具</span>
+            <select id="context-profile" name="context-profile" required></select>
+          </label>
+          <label class="question-field">
+            <span>自然语言问题</span>
+            <textarea id="question" name="question" maxlength="1000" required></textarea>
+            <small><span id="question-count">0</span>/1000 字符</small>
+          </label>
+          <button id="run-button" class="primary-button" type="submit">
+            <span class="button-idle">运行攻防对照</span>
+            <span class="button-busy" hidden>正在顺序推理…</span>
+          </button>
+        </form>
+        <p id="live-status" class="sr-only" aria-live="polite"></p>
+        <div id="error-panel" class="error-panel" role="alert" hidden></div>
+      </section>
+
+      <section class="results-section" aria-labelledby="results-title">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">02</span>
+            <h2 id="results-title">比较候选输出</h2>
+          </div>
+          <p>提示词只能降低风险概率，最终边界必须由独立网关提供。</p>
+        </div>
+
+        <div class="comparison-grid">
+          <article id="baseline-card" class="result-card baseline-card" aria-labelledby="baseline-title">
+            <header>
+              <div>
+                <span class="card-kicker">MODE A · UNSAFE DEMO</span>
+                <h3 id="baseline-title">基线提示词</h3>
+              </div>
+              <span id="baseline-status" class="status-pill status-neutral">等待运行</span>
+            </header>
+            <dl class="metric-row">
+              <div><dt>版本</dt><dd id="baseline-version" class="mono">—</dd></div>
+              <div><dt>延迟</dt><dd id="baseline-latency" class="mono">—</dd></div>
+            </dl>
+            <section class="output-block">
+              <h4>候选 SQL</h4>
+              <pre><code id="baseline-sql">尚无结果</code></pre>
+            </section>
+            <section class="output-block">
+              <h4>解析诊断</h4>
+              <pre><code id="baseline-diagnostics">尚无结果</code></pre>
+            </section>
+            <details>
+              <summary>查看原始模型输出</summary>
+              <pre><code id="baseline-raw">尚无结果</code></pre>
+            </details>
+          </article>
+
+          <article id="hardened-card" class="result-card hardened-card" aria-labelledby="hardened-title">
+            <header>
+              <div>
+                <span class="card-kicker">MODE B · PROMPT DEFENSE</span>
+                <h3 id="hardened-title">加固提示词</h3>
+              </div>
+              <span id="hardened-status" class="status-pill status-neutral">等待运行</span>
+            </header>
+            <dl class="metric-row">
+              <div><dt>版本</dt><dd id="hardened-version" class="mono">—</dd></div>
+              <div><dt>延迟</dt><dd id="hardened-latency" class="mono">—</dd></div>
+            </dl>
+            <section class="output-block">
+              <h4>候选 SQL / 拒绝原因</h4>
+              <pre><code id="hardened-sql">尚无结果</code></pre>
+            </section>
+            <section class="output-block">
+              <h4>解析诊断</h4>
+              <pre><code id="hardened-diagnostics">尚无结果</code></pre>
+            </section>
+            <details>
+              <summary>查看原始模型输出</summary>
+              <pre><code id="hardened-raw">尚无结果</code></pre>
+            </details>
+          </article>
+
+          <article class="result-card gateway-card" aria-labelledby="gateway-title">
+            <header>
+              <div>
+                <span class="card-kicker">MODE C · DETERMINISTIC BOUNDARY</span>
+                <h3 id="gateway-title">SQL 安全网关</h3>
+              </div>
+              <span class="status-pill status-pending">未接入</span>
+            </header>
+            <div class="gateway-empty">
+              <div class="gateway-symbol" aria-hidden="true">C</div>
+              <strong>等待成员 C 的网关服务</strong>
+              <p>这里将显示 ALLOW / MASK / BLOCK、策略原因和审计编号。</p>
+            </div>
+            <section class="output-block">
+              <h4>待发送契约</h4>
+              <pre><code id="gateway-payload">运行加固提示词后生成联调载荷</code></pre>
+            </section>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        <p>SecureQuery AI · 本地合成数据研究演示 · 不连接生产数据库</p>
+      </footer>
+    </main>
+  </body>
+</html>
+

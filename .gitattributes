@@ -1,0 +1,24 @@
+# Use Windows line endings for editable source and documentation.
+# Keep hashed fixtures and experiment records byte-for-byte unchanged.
+* text=auto
+*.py text eol=crlf
+*.js text eol=crlf
+*.css text eol=crlf
+*.html text eol=crlf
+*.md text eol=crlf
+*.json text eol=crlf
+*.toml text eol=crlf
+*.txt text eol=crlf
+*.sql text eol=crlf
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+.env.example text eol=crlf
+.gitignore text eol=crlf
+.gitattributes text eol=crlf
+tests/fixtures/** -text -eol
+artifacts/experiments/** -text -eol
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.zip binary
