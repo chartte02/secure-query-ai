@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "secure-query-ai"
+version = "0.1.0"
+description = "Reproducible PostgreSQL fixtures for an AI database security course project"
+requires-python = ">=3.11"
+dependencies = ["psycopg[binary]>=3.2,<4", "python-dotenv>=1,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+
+[tool.setuptools.packages.find]
+include = ["db*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+db = ["migrations/*.sql", "profiles/*.sql", "seed/*.json", "fixtures/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = ["database: requires initialized local Docker PostgreSQL lab"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -1,0 +1,52 @@
+name: securequery-ai-lab
+
+x-postgres: &postgres
+  image: ${SQ_POSTGRES_IMAGE:-postgres:17@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f}
+  restart: "no"
+  environment:
+    POSTGRES_USER: sq_admin
+    POSTGRES_PASSWORD: ${SQ_ADMIN_PASSWORD:?Run python scripts/init_db.py first}
+    POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+  labels:
+    io.securequery.lab: "true"
+  healthcheck:
+    test: [CMD-SHELL, 'pg_isready -U sq_admin -d "$$POSTGRES_DB"']
+    interval: 2s
+    timeout: 3s
+    retries: 40
+
+services:
+  hardened:
+    <<: *postgres
+    environment:
+      POSTGRES_USER: sq_admin
+      POSTGRES_PASSWORD: ${SQ_ADMIN_PASSWORD:?Run python scripts/init_db.py first}
+      POSTGRES_DB: sq_lab_hardened
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: [hardened-data:/var/lib/postgresql/data]
+  baseline:
+    <<: *postgres
+    profiles: [lab]
+    environment:
+      POSTGRES_USER: sq_admin
+      POSTGRES_PASSWORD: ${SQ_ADMIN_PASSWORD:?Run python scripts/init_db.py first}
+      POSTGRES_DB: sq_lab_baseline
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports: ["127.0.0.1:55433:5432"]
+    volumes: [baseline-data:/var/lib/postgresql/data]
+  write_lab:
+    <<: *postgres
+    profiles: [lab]
+    environment:
+      POSTGRES_USER: sq_admin
+      POSTGRES_PASSWORD: ${SQ_ADMIN_PASSWORD:?Run python scripts/init_db.py first}
+      POSTGRES_DB: sq_lab_write
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports: ["127.0.0.1:55434:5432"]
+    volumes: [write-data:/var/lib/postgresql/data]
+
+volumes:
+  hardened-data:
+  baseline-data:
+  write-data:
