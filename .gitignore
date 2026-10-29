@@ -1,15 +1,27 @@
-# Local credentials and Python environment.
+# 本地凭据与 Python 环境。
 /.env
 /.venv/
+.venv/
 
-# Regenerable Python/tool caches.
+# 可再生的 Python / 工具缓存。
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
-# Generated experiment evidence; shared documentation remains versioned.
-/artifacts/
+# 构建产物。
+dist/
+build/
+*.egg-info/
 
-# Member B's personal plan only; the other research documents are shared.
+# 运行时状态（成员 A：项目专用 Ollama 模型、日志、受管进程）。
+.runtime/
+artifacts/runtime/
+
+# 可再生的实验证据（成员 B：固定 SQL 证据文件）；人工核对的 curated 记录应显式提交。
+artifacts/database-evidence.json
+
+# 成员 B 的个人实施计划；其余调研文档共享提交。
 /docs/research/05-member-b-implementation.md

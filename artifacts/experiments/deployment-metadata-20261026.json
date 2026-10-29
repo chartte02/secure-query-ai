@@ -1,0 +1,130 @@
+{
+  "collected_at_utc": "2026-10-26T16:11:16.2082605Z",
+  "ollama_version": "0.40.11",
+  "installer_source": "https://github.com/ollama/ollama/releases/download/v0.40.11/OllamaSetup.exe",
+  "installer_sha256": "87309d23b423abeae1d8df2f98df95f94bf35659debfdf3761d65b7b62a75508",
+  "installer_authenticode": "Valid: Ollama Inc.",
+  "models": [
+    {
+      "name": "qwen2.5-coder:7b",
+      "model": "qwen2.5-coder:7b",
+      "modified_at": "2026-10-27T00:10:16.6451639+08:00",
+      "size": 4683087561,
+      "digest": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "7.6B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 32768,
+        "embedding_length": 3584,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "insert"
+      ]
+    },
+    {
+      "name": "qwen2.5-coder:3b",
+      "model": "qwen2.5-coder:3b",
+      "modified_at": "2026-10-27T00:04:47.0256848+08:00",
+      "size": 1929912626,
+      "digest": "f72c60cabf6237b07f6e632b2c48d533cef25eda2efbd34bed21c5e9c01e6225",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "3.1B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 32768,
+        "embedding_length": 2048,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "insert"
+      ]
+    }
+  ],
+  "model_details": [
+    {
+      "tag": "qwen2.5-coder:7b",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "7.6B",
+        "quantization_level": "Q4_K_M"
+      },
+      "license_heading": "Apache License",
+      "capabilities": [
+        "completion",
+        "tools",
+        "insert"
+      ]
+    },
+    {
+      "tag": "qwen2.5-coder:3b",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "3.1B",
+        "quantization_level": "Q4_K_M"
+      },
+      "license_heading": "Qwen RESEARCH LICENSE AGREEMENT",
+      "capabilities": [
+        "completion",
+        "tools",
+        "insert"
+      ]
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU, 8188 MiB, 581.80",
+  "configuration": {
+    "seed": 42,
+    "temperature": 0,
+    "host": "127.0.0.1:11434",
+    "context": 4096,
+    "cloud_disabled": true,
+    "max_output_tokens": 512,
+    "parallel": 1,
+    "max_loaded_models": 1
+  },
+  "sql_executed": false,
+  "followup_verification": {
+    "checked_at_utc": "2026-10-27T06:05:25.9839958Z",
+    "api": "http://127.0.0.1:8000",
+    "real_integration_tests": "2 passed after service restart; earlier 2 timeouts retained in report",
+    "single_resident_model": true,
+    "frontend_checks": {
+      "desktop_viewport_width": 1440,
+      "desktop_output_columns": 3,
+      "mobile_scroll_width": 360,
+      "viewport_reset": true,
+      "network_error_recovery": true,
+      "mobile_viewport_width": 375,
+      "desktop_client_width": 1425,
+      "keyboard_enter": true,
+      "desktop_scroll_width": 1425,
+      "mobile_client_width": 360
+    },
+    "default_tests": "63 passed, 2 skipped"
+  }
+}

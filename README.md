@@ -1,82 +1,94 @@
-# SecureQuery AI：数据库安全课程实验
+# SecureQuery AI：本地 AI SQL 攻防演示
 
-目前已实现成员 B 的数据库与权限基础：Docker PostgreSQL、合成教务数据、逐主体行权限、敏感列保护、受限脱敏视图、反馈上下文、初始化／重置和数据库回归测试。
+以合成校园教务数据研究“自然语言数据库助手”的安全风险。项目把三件事分开验证：模型能否生成符合问题与身份范围的候选 SQL（成员 A）、合成 PostgreSQL 的权限与攻击数据是否可复现（成员 B），以及独立 SQL 网关能否确定性阻断越权和危险 SQL（成员 C，进行中）。
 
-模型服务、SQL 网关和前端尚未实现。固定 SQL 测试用于验证数据库控制，不代表大模型已被成功攻击。
+当前状态：**成员 A 的“自然语言 → 候选 SQL”服务与成员 B 的“PostgreSQL 数据库 / 权限 / 攻击用例”已合入；成员 C 的 SQL 安全网关、统一执行入口与最终结果表尚未实现。** 页面显示的候选 SQL 只供观察，当前服务不会执行它。
 
 ## 目录与阅读入口
 
+| 内容 | 入口 |
+| --- | --- |
+| 总体设计与三人分工 | [docs/project-design.md](docs/project-design.md)、[docs/team-division.md](docs/team-division.md) |
+| 成员 A：AI SQL 服务 | [docs/usage-guide.md](docs/usage-guide.md)、[docs/local-model-evaluation.md](docs/local-model-evaluation.md)、[docs/integration.md](docs/integration.md) |
+| 成员 B：数据库与攻击 | [docs/README.md](docs/README.md)、[docs/database-contract.md](docs/database-contract.md)、[docs/database-validation.md](docs/database-validation.md) |
+| 成员 B：应用背景与开源调研 | [docs/research/README.md](docs/research/README.md) |
+| A/B/C 联调待办（A 视角） | [docs/team-bc-handoff.md](docs/team-bc-handoff.md) |
+
 ```text
 secure-query-ai/
-├── README.md                 # 启动、测试和协作入口
-├── AGENTS.md                 # 仓库开发要求
-├── compose.yaml              # 三个独立 PostgreSQL 实例
-├── pyproject.toml            # Python 依赖范围与工具配置
-├── requirements-dev.lock     # 已验证的开发依赖快照
-├── db/
-│   ├── client.py             # A/C 使用的身份、连接、上下文和反馈接口
-│   ├── settings.py           # 本地配置与固定实验目标
-│   ├── manage.py             # 建库、重置和安装标识检查
-│   ├── migrations/           # 表结构与身份辅助函数
-│   ├── profiles/             # 加固、宽读取和写操作权限配置
-│   ├── seed/                 # 确定性数据生成与冻结摘要
-│   └── fixtures/             # 干净／污染反馈的配对说明
-├── scripts/                  # 初始化、重置、验证和证据采集命令
-├── tests/
-│   ├── db/                   # 数据库与权限回归
-│   └── attacks/              # 固定 SQL 对照和开发样例
-└── docs/
-    ├── README.md             # 文档总索引与当前进展
-    ├── database-contract.md  # A/C 接入契约
-    ├── database-validation.md # 数据库实测记录
-    └── research/             # 共享调研、案例与项目规划
+├── app/                  # 成员 A：FastAPI、提示词、Ollama/Mock、诊断
+├── frontend/             # 成员 A：轻量攻防对照页
+├── db/                   # 成员 B：表结构、角色、权限、种子数据、可信接口
+├── scripts/              # 初始化/重置/证据采集/evaluate
+├── tests/                # A 的 API/Provider 测试 + B 的数据库/攻击回归
+├── docs/                 # 设计、分工、接入契约、验证记录、调研
+└── compose.yaml          # 三个独立 PostgreSQL 实验实例
 ```
 
-首次了解项目看[文档总索引](docs/README.md)，接入开发看[数据库契约](docs/database-contract.md)。原总体设计和分工保留在 `docs/`，用于与当前实现对照。
+## 快速开始：成员 A 的 AI SQL 服务
 
-`.env`、`.venv/`、`artifacts/` 和工具缓存是本地运行内容，由 Git 忽略。`docs/research/` 中仅 B 的个人 `05` 计划被忽略，其余调研可提交和分享。
+默认使用 Mock Provider，不需要 Ollama、不连接数据库。在 Windows PowerShell 中：
 
-## 本地启动（Windows PowerShell）
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 start
+```
 
-需要 Docker Desktop（Linux containers）和 Python 3.11+。从仓库根目录运行：
+打开 <http://127.0.0.1:8000/>。核心接口与排障见 [docs/usage-guide.md](docs/usage-guide.md)。`run.ps1 start/status/stop/test/evaluate` 管理项目专用 Ollama 与 API；`.env.example` 默认 Mock + Demo，无需模型。
+
+## 快速开始：成员 B 的数据库实验室
+
+需要 Docker Desktop（Linux containers）和 Python 3.11+：
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.lock
-.\.venv\Scripts\python.exe scripts/init_db.py --all
-.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe scripts/init_db.py --all     # 创建 .env 随机凭据并初始化三个实例
+.\.venv\Scripts\python.exe -m pytest tests/db tests/attacks -q
 ```
-
-初始化自动创建含随机凭据的 `.env`；不要直接复制 `.env.example` 的占位密码。三个实例只向本机绑定端口，镜像已固定 digest。`--all` 启动独立基线和写操作实验库；仅初始化默认加固环境可省略 `--all`，此时运行 `tests/db`。
 
 | 环境 | 本机端口 | 用途 |
 | --- | --- | --- |
-| hardened | 55432 | 默认；学生本人／教师所授教学班；禁止原始敏感字段 |
-| baseline | 55433 | 故意宽读取的隔离对照 |
-| write_lab | 55434 | 一次性成绩 DML 实验，不授予业务表 DROP 权限 |
+| hardened | 55432 | 默认；RLS 本人/教师所授班；禁止原始敏感列 |
+| baseline | 55433 | 故意宽读取的对照 |
+| write_lab | 55434 | 一次性成绩 DML 实验 |
 
-## 常用操作
+重置只接受固定实验目标并核查本地安装标识：`scripts/reset_db.py`。A/C 接入数据库的契约见 [docs/database-contract.md](docs/database-contract.md)。
 
-```powershell
-.\.venv\Scripts\python.exe scripts/verify_db_permissions.py
-.\.venv\Scripts\python.exe -m pytest tests/attacks -q
-.\.venv\Scripts\python.exe scripts/reset_db.py
-.\.venv\Scripts\python.exe scripts/reset_db.py --profile baseline --fixture poisoned-01
-.\.venv\Scripts\python.exe scripts/reset_db.py --profile baseline --fixture clean
-.\.venv\Scripts\python.exe scripts/collect_experiment_evidence.py
-.\.venv\Scripts\python.exe -m ruff check db scripts tests
-.\.venv\Scripts\python.exe -m ruff format --check db scripts tests
-docker compose --profile lab stop
+## 运行测试
+
+```bash
+# 成员 A：API / Provider / 提示词 / 前端安全（Mock，不依赖 Ollama 或数据库）
+python -m pytest tests/test_api.py tests/test_config.py tests/test_diagnostics.py \
+  tests/test_evaluation.py tests/test_frontend_security.py tests/test_prompts.py \
+  tests/test_providers.py tests/attacks/test_generation_attacks.py
+
+# 成员 B：数据库与攻击回归（需先启动 Docker PostgreSQL）
+python -m pytest tests/db tests/attacks -q
+
+# 成员 A：真实 Ollama 集成（需本地模型并显式开启）
+$env:SECUREQUERY_RUN_OLLAMA_TESTS="1"; python -m pytest tests/test_ollama_integration.py
 ```
 
-重置仅接受固定实验目标并核查本地安装标识；会清除该目标的反馈和实验改动，保留角色后重新构建合成 fixture。测试中的写操作只作用于专用副本并恢复种子；运行全套测试前，应保持各环境为 clean 状态且无并发实验。
+## 目标请求链路
 
-## 协作入口
+```mermaid
+flowchart LR
+    UI[网页：问题、演示身份、场景] --> Q[查询编排：待 C 实现]
+    Q -->|可信身份 + 问题| A[成员 A：生成候选 SQL]
+    A -->|候选 + 请求 ID + Schema 版本| C[成员 C：独立解析、授权、只读执行]
+    C -->|只读事务| B[成员 B：合成 PostgreSQL]
+    B -->|原始行| C
+    C -->|ALLOW / MASK / BLOCK + 审计 + 脱敏结果| Q
+    Q -->|统一状态与结果表格| UI
+```
 
-- [文档总索引](docs/README.md)：按研究背景、原始设计、当前接口和验证记录导航。
-- [给 A/C 的数据库接入契约](docs/database-contract.md)：表、权限、接口、正常任务及实验配置。
-- [数据库已验证行为](docs/database-validation.md)：测试范围与验证边界。
-- [共享调研](docs/research/README.md)：市场、仓库、公开案例和项目计划。
-- [最初总体设计](docs/project-design.md)与[三人分工](docs/team-division.md)保持原样，部分内容是尚未实现的后续目标。
+`POST /api/v1/queries` 目前只有[接口样例](docs/integration.md)，尚未实现路由。模型输出默认视为不可信，必须经 C 的网关授权后才能执行；B 的数据库连接不提供绕过网关的模型执行接口。
 
-所有数据均为合成。应用层必须在使用数据库查询连接前执行独立 SQL 网关检查；本模块不提供绕过网关的模型执行接口。凭据、虚拟环境和生成证据存放在 Git 忽略路径中，B 的个人实施计划仍单独忽略。
+## 边界与安全
+
+- 所有数据均为合成；不包含真实个人信息。
+- `.env`、`.venv/`、可再生的实验证据（如 `artifacts/database-evidence.json`）由 Git 忽略；已提交的 `artifacts/experiments/`、`artifacts/screenshots/` 为人工核对的 curated 记录。
+- 模型输出、用户文本、数据库内容与 Schema 描述均视为不可信输入；生成 SQL 必须通过安全网关后才能执行。

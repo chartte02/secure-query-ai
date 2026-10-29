@@ -1,2 +1,26 @@
-* text=auto eol=lf
+# Windows 工作区中可编辑源码与文档使用 CRLF；Git 内部仍按 LF 规范化存储。
+# 哈希夹具与 curated 实验记录保持字节级不变。
+* text=auto
+*.py text eol=crlf
+*.js text eol=crlf
+*.css text eol=crlf
+*.html text eol=crlf
+*.md text eol=crlf
+*.json text eol=crlf
+*.toml text eol=crlf
+*.txt text eol=crlf
+*.sql text eol=crlf
+*.yaml text eol=crlf
+*.yml text eol=crlf
 *.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+.env.example text eol=crlf
+.gitignore text eol=crlf
+.gitattributes text eol=crlf
+tests/fixtures/** -text -eol
+artifacts/experiments/** -text -eol
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.zip binary
