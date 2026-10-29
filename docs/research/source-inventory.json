@@ -1,0 +1,1028 @@
+{
+  "survey_date": "2026-10-26",
+  "timezone": "Asia/Shanghai",
+  "method": "Official web documentation and original research, plus fixed-commit Git snapshots and raw source inspection",
+  "limitations": [
+    "No commercial service deployment or hands-on validation",
+    "No third-party exploit execution",
+    "No full security audit",
+    "No local database or application implementation in this documentation pass",
+    "Product presence is not evidence of a vulnerability or market-share measurement"
+  ],
+  "repositories": [
+    {
+      "repository": "vanna-ai/vanna",
+      "url": "https://github.com/vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "commit_date": "2026-02-02T09:13:47-05:00",
+      "file_count": 375,
+      "license_observation": "MIT",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/README.md",
+      "license_urls": [
+        "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/LICENSE"
+      ]
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "url": "https://github.com/Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "commit_date": "2026-10-23T17:12:33+08:00",
+      "file_count": 707,
+      "license_observation": "Path-specific: core/sdk/skills/examples and root Apache-2.0; docs CC-BY-4.0; package metadata may govern published artifacts",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/README.md",
+      "license_urls": [
+        "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE",
+        "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE-AGPL-3.0",
+        "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE-APACHE-2.0",
+        "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE-CC-BY-4.0"
+      ]
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "url": "https://github.com/eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "commit_date": "2026-10-26T16:17:22+08:00",
+      "file_count": 5257,
+      "license_observation": "MIT",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.md",
+      "license_urls": [
+        "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/LICENSE"
+      ]
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "url": "https://github.com/dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "commit_date": "2026-10-26T18:12:47+08:00",
+      "file_count": 1010,
+      "license_observation": "Modified GPLv3 with additional conditions; inspect external package boundaries",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/README.md",
+      "license_urls": [
+        "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/LICENSE"
+      ]
+    },
+    {
+      "repository": "langchain-ai/langchain-community",
+      "url": "https://github.com/langchain-ai/langchain-community",
+      "commit": "f425a3ed1933173fb3694b81359d1519c4f82d36",
+      "commit_date": "2026-06-19T18:20:03-04:00",
+      "file_count": 2267,
+      "license_observation": "MIT",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/README.md",
+      "license_urls": [
+        "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/LICENSE"
+      ]
+    },
+    {
+      "repository": "langchain-ai/langchain-experimental",
+      "url": "https://github.com/langchain-ai/langchain-experimental",
+      "commit": "f10d5c3247fb102d4d45d29a35a0266760288542",
+      "commit_date": "2026-05-22T16:36:10-04:00",
+      "file_count": 232,
+      "license_observation": "MIT",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/langchain-ai/langchain-experimental/blob/f10d5c3247fb102d4d45d29a35a0266760288542/README.md",
+      "license_urls": [
+        "https://github.com/langchain-ai/langchain-experimental/blob/f10d5c3247fb102d4d45d29a35a0266760288542/LICENSE"
+      ]
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "url": "https://github.com/run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "commit_date": "2026-10-14T09:29:28-06:00",
+      "file_count": 9798,
+      "license_observation": "MIT",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/README.md",
+      "license_urls": [
+        "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/LICENSE"
+      ]
+    },
+    {
+      "repository": "supabase/mcp",
+      "url": "https://github.com/supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "commit_date": "2026-10-24T15:09:31+02:00",
+      "file_count": 167,
+      "license_observation": "Apache-2.0",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/README.md",
+      "license_urls": [
+        "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/LICENSE"
+      ]
+    },
+    {
+      "repository": "Dataherald/dataherald",
+      "url": "https://github.com/Dataherald/dataherald",
+      "commit": "f8946182e6db55522b88cd5a831c788339b8fc42",
+      "commit_date": "2024-07-11T09:31:23-07:00",
+      "file_count": 580,
+      "license_observation": "Apache-2.0 at root and engine; inspect service boundaries",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/Dataherald/dataherald/blob/f8946182e6db55522b88cd5a831c788339b8fc42/README.md",
+      "license_urls": [
+        "https://github.com/Dataherald/dataherald/blob/f8946182e6db55522b88cd5a831c788339b8fc42/LICENSE"
+      ]
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "url": "https://github.com/Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "commit_date": "2026-10-20T14:02:01+08:00",
+      "file_count": 4232,
+      "license_observation": "Source-available modified Apache terms for Community >=5.3.0; historical releases differ",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/README.md",
+      "license_urls": [
+        "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/LICENSE"
+      ]
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "url": "https://github.com/rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "commit_date": "2025-02-04T02:01:39+01:00",
+      "file_count": 568,
+      "license_observation": "MIT at root; vendored third-party files retain own terms",
+      "verification": "shallow Git snapshot; README/license and selected source inspection; no runtime or exploit testing",
+      "readme_url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/README.md",
+      "license_urls": [
+        "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/LICENSE.md"
+      ]
+    }
+  ],
+  "source_files": [
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "LICENSE",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE",
+      "sha256": "25ce726569e5c568a00f46133a3f7515a216c6c435f8aa8531ede1924b0d6309",
+      "lines": 51
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "LICENSE-AGPL-3.0",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE-AGPL-3.0",
+      "sha256": "927b622501e5d164e33fb71e4146420304734d7f486e978d614ab78fbec9b53c",
+      "lines": 662
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "LICENSE-APACHE-2.0",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE-APACHE-2.0",
+      "sha256": "3da122eeaedca9b81aa873d2cb090c66eeaa1594e776efab631fbf0d1cebfeed",
+      "lines": 201
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "LICENSE-CC-BY-4.0",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/LICENSE-CC-BY-4.0",
+      "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411",
+      "lines": 396
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "README.md",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/README.md",
+      "sha256": "18f78276fd1a5169bed7c0b8c3a591033e2ba9db6e2b7c9ff2b3b6a68175412d",
+      "lines": 300
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "SECURITY.md",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/SECURITY.md",
+      "sha256": "d5e115d23e3664a46922d08f0de2364625838fb9efa1d960a77439e80ddda631",
+      "lines": 27
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren-core-base/src/mdl/cls.rs",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren-core-base/src/mdl/cls.rs",
+      "sha256": "25875d68fcb2f2d0295ad32300ae1cb336214a642b1bdab256472804b7164ca2",
+      "lines": 172
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren-core-base/src/mdl/manifest.rs",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren-core-base/src/mdl/manifest.rs",
+      "sha256": "6b04ec6c1e440719fceaa79ca38cf5ad1b3a9188142b200e563d67c4dcc1e644",
+      "lines": 668
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren/README.md",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren/README.md",
+      "sha256": "92108667489e7574a8b644e1d6d51ee2330fbe8ae89552424ab0421a91a97d1a",
+      "lines": 323
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren/src/wren/ask.py",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren/src/wren/ask.py",
+      "sha256": "a78fe4c8b051b68b313641cfb05b7b1e861fe8a29bd600e4d66ff0e031eda7ff",
+      "lines": 33
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren/src/wren/config.py",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren/src/wren/config.py",
+      "sha256": "aac3aee4a3288b95abfa6cd6b2d43b583d598ef5d93f78f85b0ec12da2309dd1",
+      "lines": 98
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren/src/wren/engine.py",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren/src/wren/engine.py",
+      "sha256": "fc4c8f3fa620d0689a0b4d49d51e6f8716f8c030aab861ab9dfb9a0c7167cb9e",
+      "lines": 265
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren/src/wren/mcp_server.py",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren/src/wren/mcp_server.py",
+      "sha256": "d85e53d5f51a6c94f97b0554d1140a8be933f7b9281e8d9520152b262761a20c",
+      "lines": 698
+    },
+    {
+      "repository": "Canner/WrenAI",
+      "commit": "86fcca2d26cb20bcca9c09aa59a97286290abd3f",
+      "path": "core/wren/src/wren/policy.py",
+      "url": "https://github.com/Canner/WrenAI/blob/86fcca2d26cb20bcca9c09aa59a97286290abd3f/core/wren/src/wren/policy.py",
+      "sha256": "3399b51fe79b5fde1e27594114c8474a7e0419e35f7f04d7d1d4d54f34851e9f",
+      "lines": 560
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "LICENSE",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/LICENSE",
+      "sha256": "330039ce37f2736f4283aa31cf2c9c597eab9533c33c4a878a84b25420c8287e",
+      "lines": 179
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "README.md",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/README.md",
+      "sha256": "525365edc3cd52479238338a48a73c3483f103df6e150275fd7392e7f8a8b4af",
+      "lines": 251
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "README_CN.md",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/README_CN.md",
+      "sha256": "2d6ae4d210cb3ca3fb5fae99451dc38a6c29011b580a90270fce5d7b33eb5293",
+      "lines": 241
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "README_ES.md",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/README_ES.md",
+      "sha256": "a125fd9af21de3551c0e9bbec6c59d9f2e12311b3176f53eac1e451596210120",
+      "lines": 246
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "README_JA.md",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/README_JA.md",
+      "sha256": "4f90e4976a19fc56c13de70c0d6286a4d815ae286c8f4679bfaf9d98af44ed5a",
+      "lines": 246
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "README_KO.md",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/README_KO.md",
+      "sha256": "9091b0be11c154d13a6dc9d91479bad3fcc3c106b49be3443f43a19e06890be1",
+      "lines": 245
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "SECURITY.md",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/SECURITY.md",
+      "sha256": "fdcd6bca4c62c33aa522ca5c1d970df495b12223f78adf22856d7730a0d0599c",
+      "lines": 73
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "chat2db-community-server/chat2db-community-domain/chat2db-community-domain-core/src/main/java/ai/chat2db/community/domain/core/impl/ai/AiToolServiceImpl.java",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/chat2db-community-server/chat2db-community-domain/chat2db-community-domain-core/src/main/java/ai/chat2db/community/domain/core/impl/ai/AiToolServiceImpl.java",
+      "sha256": "607009093ad4e1e88b7069ae17f76bc02bdff654e3ba86d6a7f98bc6844b9ecf",
+      "lines": 761
+    },
+    {
+      "repository": "Chat2DB/Chat2DB",
+      "commit": "53f4174335ba2a247032314cac21006dc3ae42a4",
+      "path": "chat2db-community-server/chat2db-community-domain/chat2db-community-domain-core/src/main/java/ai/chat2db/community/domain/core/impl/db/DbSqlServiceImpl.java",
+      "url": "https://github.com/Chat2DB/Chat2DB/blob/53f4174335ba2a247032314cac21006dc3ae42a4/chat2db-community-server/chat2db-community-domain/chat2db-community-domain-core/src/main/java/ai/chat2db/community/domain/core/impl/db/DbSqlServiceImpl.java",
+      "sha256": "b572b61d642a6e78dbed7eb114638f7bae61dfa400a5fee3379eae9ee9367707",
+      "lines": 133
+    },
+    {
+      "repository": "Dataherald/dataherald",
+      "commit": "f8946182e6db55522b88cd5a831c788339b8fc42",
+      "path": "LICENSE",
+      "url": "https://github.com/Dataherald/dataherald/blob/f8946182e6db55522b88cd5a831c788339b8fc42/LICENSE",
+      "sha256": "283ea6cc2997a1a70da0049e09adf9317bb60ca1b51279b65196b83a69e1996b",
+      "lines": 201
+    },
+    {
+      "repository": "Dataherald/dataherald",
+      "commit": "f8946182e6db55522b88cd5a831c788339b8fc42",
+      "path": "README.md",
+      "url": "https://github.com/Dataherald/dataherald/blob/f8946182e6db55522b88cd5a831c788339b8fc42/README.md",
+      "sha256": "9e6f014978eb1f8529ba5f6037812c03a528c96b1256f2989f9350de3aab12da",
+      "lines": 60
+    },
+    {
+      "repository": "Dataherald/dataherald",
+      "commit": "f8946182e6db55522b88cd5a831c788339b8fc42",
+      "path": "services/engine/dataherald/sql_database/base.py",
+      "url": "https://github.com/Dataherald/dataherald/blob/f8946182e6db55522b88cd5a831c788339b8fc42/services/engine/dataherald/sql_database/base.py",
+      "sha256": "ac47ef00100d6ec9294d1ab3a22f7b39cfdc9add6dbbb8a24d34477f6d8f93bc",
+      "lines": 234
+    },
+    {
+      "repository": "Dataherald/dataherald",
+      "commit": "f8946182e6db55522b88cd5a831c788339b8fc42",
+      "path": "services/engine/dataherald/sql_generator/dataherald_sqlagent.py",
+      "url": "https://github.com/Dataherald/dataherald/blob/f8946182e6db55522b88cd5a831c788339b8fc42/services/engine/dataherald/sql_generator/dataherald_sqlagent.py",
+      "sha256": "ccc3a6e7806bb19103493fd028a51da1d71457f8c21bbb63358453d369523c0b",
+      "lines": 918
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "LICENSE",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/LICENSE",
+      "sha256": "426022abd84da60b733aee2d5f5f2a99b2afab4333bd4ae65f9ad730dd0e52b4",
+      "lines": 14
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "README.md",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/README.md",
+      "sha256": "0c87654cfe34f138c6da5ba6d7b14614dd8d1a70684e3c36a87e150a04903753",
+      "lines": 93
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/chat/api/chat.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/chat/api/chat.py",
+      "sha256": "69fd20fb9c4bf7a93a36c69e3b6bc89be48645140e88468cd53008dd29f827c6",
+      "lines": 561
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/chat/curd/chat.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/chat/curd/chat.py",
+      "sha256": "b9c65795ae170aa49d041409a698e05d139fcc434deda3e134faeb8057ba252e",
+      "lines": 1219
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/chat/task/llm.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/chat/task/llm.py",
+      "sha256": "94139ac1dae580a9eebd063f2ba1b38d11e2a9dc6f4c23e3941367b311bed087",
+      "lines": 2154
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/datasource/crud/permission.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/datasource/crud/permission.py",
+      "sha256": "2079ec2fcd35f773534817ed2f561dba07363905079bb6481781c8ae166c3579",
+      "lines": 99
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/datasource/crud/row_permission.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/datasource/crud/row_permission.py",
+      "sha256": "372f4b4b0657639251db73d9082d6f5b2aac039249d0aa5a56ddc7811d9f05a0",
+      "lines": 292
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/datasource/embedding/table_embedding.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/datasource/embedding/table_embedding.py",
+      "sha256": "32d805c82523053854991f0d5d57e6a011a4b8e499280e9c54000030f7e2edd6",
+      "lines": 397
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/db/db.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/db/db.py",
+      "sha256": "f34e2f42444f33e606ab94ab95b9dffd6746fb6938a7b2638a2fdd4d28c7c822",
+      "lines": 1384
+    },
+    {
+      "repository": "dataease/SQLBot",
+      "commit": "8520213f91b2599b90888e8407d5ebdd84bc38af",
+      "path": "backend/apps/db/engine.py",
+      "url": "https://github.com/dataease/SQLBot/blob/8520213f91b2599b90888e8407d5ebdd84bc38af/backend/apps/db/engine.py",
+      "sha256": "9625e11c991eae956a5c598685614678cffd9c3cb0beefb54190deb504e3ebbb",
+      "lines": 71
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "LICENSE",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/LICENSE",
+      "sha256": "394cb16f20b7a13ce4586359bb51da4793b39a95e0efb1c0d0ee2dc50f93af65",
+      "lines": 21
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "README.hi.md",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.hi.md",
+      "sha256": "113f25e9036033498bf064d0b4080933b1a744c84635f5c88eca7b61a014e8a4",
+      "lines": 378
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "README.ja.md",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.ja.md",
+      "sha256": "04400af464d213d6e12bbe9f80161218c1f0389c0f306f693ca8d056150d9798",
+      "lines": 367
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "README.ma.md",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.ma.md",
+      "sha256": "d2348dfd8c19c7384bf0999ea2e078ada4b586cd8d7811cab3fa80986c267c63",
+      "lines": 381
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "README.md",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.md",
+      "sha256": "52f50031b1c395e914dbe379ae2c675c3908fe5d96e4535bc15168d60fcd6fb3",
+      "lines": 490
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "README.ta.md",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.ta.md",
+      "sha256": "59ab0e13e8444f90dbdb5328ca42ee3edf08bb83d934e333abb18589ba5d5f07",
+      "lines": 374
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "README.zh.md",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/README.zh.md",
+      "sha256": "7d4c145a6dce96b2e55f6a2a973cdb49ba64ed46386b2c131ee642d2e15b9e56",
+      "lines": 531
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "packages/dbgpt-app/src/dbgpt_app/scene/chat_db/auto_execute/chat.py",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/packages/dbgpt-app/src/dbgpt_app/scene/chat_db/auto_execute/chat.py",
+      "sha256": "f5621d0fd8ab1552837ddc9930ae72d2a1177a1345411c1866709eda334e4afd",
+      "lines": 92
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "packages/dbgpt-app/src/dbgpt_app/scene/chat_db/auto_execute/out_parser.py",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/packages/dbgpt-app/src/dbgpt_app/scene/chat_db/auto_execute/out_parser.py",
+      "sha256": "13590e105058e4426504607dc1b3f542596dc66621f4c691dd52211856c6b425",
+      "lines": 181
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "packages/dbgpt-app/src/dbgpt_app/scene/chat_db/auto_execute/prompt.py",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/packages/dbgpt-app/src/dbgpt_app/scene/chat_db/auto_execute/prompt.py",
+      "sha256": "a3229c52afd96369a69357ccfe1f621d90898c36e043028a10d93321a11da377",
+      "lines": 128
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "packages/dbgpt-core/src/dbgpt/datasource/rdbms/base.py",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/packages/dbgpt-core/src/dbgpt/datasource/rdbms/base.py",
+      "sha256": "ce2b206e9edaf074df73f864224c87e4c9e5dd849fa8f753bbd734fec215114e",
+      "lines": 976
+    },
+    {
+      "repository": "eosphoros-ai/DB-GPT",
+      "commit": "06a46eea2d248a0f2b3e9096035424df4f2dc2eb",
+      "path": "packages/dbgpt-ext/src/dbgpt_ext/rag/summary/rdbms_db_summary.py",
+      "url": "https://github.com/eosphoros-ai/DB-GPT/blob/06a46eea2d248a0f2b3e9096035424df4f2dc2eb/packages/dbgpt-ext/src/dbgpt_ext/rag/summary/rdbms_db_summary.py",
+      "sha256": "a80cbcd62b4591490fa2ca67e3058b5941b9ca256b2bc4d027be0468128ee9e8",
+      "lines": 307
+    },
+    {
+      "repository": "langchain-ai/langchain-community",
+      "commit": "f425a3ed1933173fb3694b81359d1519c4f82d36",
+      "path": "LICENSE",
+      "url": "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/LICENSE",
+      "sha256": "a01dcffdc1291b4043f2a81d249a9f3e45c9036f2308c9cdfeefe18371371e80",
+      "lines": 21
+    },
+    {
+      "repository": "langchain-ai/langchain-community",
+      "commit": "f425a3ed1933173fb3694b81359d1519c4f82d36",
+      "path": "README.md",
+      "url": "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/README.md",
+      "sha256": "4fbd92fe8e495bf1e0a83ce776ae3c131c1e9e9ec316589da6ce0808233f5481",
+      "lines": 34
+    },
+    {
+      "repository": "langchain-ai/langchain-community",
+      "commit": "f425a3ed1933173fb3694b81359d1519c4f82d36",
+      "path": "libs/community/langchain_community/agent_toolkits/sql/toolkit.py",
+      "url": "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/libs/community/langchain_community/agent_toolkits/sql/toolkit.py",
+      "sha256": "9b46ddcb79dd465078c18592fdf1ca8e8dd7ff53ae7e4fafa708d71f85020204",
+      "lines": 139
+    },
+    {
+      "repository": "langchain-ai/langchain-community",
+      "commit": "f425a3ed1933173fb3694b81359d1519c4f82d36",
+      "path": "libs/community/langchain_community/tools/sql_database/tool.py",
+      "url": "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/libs/community/langchain_community/tools/sql_database/tool.py",
+      "sha256": "bae9a85172db29a80e7ae03e6f73dc856b05db39e128a8d89af7fe13d15ce300",
+      "lines": 182
+    },
+    {
+      "repository": "langchain-ai/langchain-community",
+      "commit": "f425a3ed1933173fb3694b81359d1519c4f82d36",
+      "path": "libs/community/langchain_community/utilities/sql_database.py",
+      "url": "https://github.com/langchain-ai/langchain-community/blob/f425a3ed1933173fb3694b81359d1519c4f82d36/libs/community/langchain_community/utilities/sql_database.py",
+      "sha256": "cdb2e32ac0f8536c637da5595f855851f97bae94f6a1c093be43c67f31184148",
+      "lines": 653
+    },
+    {
+      "repository": "langchain-ai/langchain-experimental",
+      "commit": "f10d5c3247fb102d4d45d29a35a0266760288542",
+      "path": "LICENSE",
+      "url": "https://github.com/langchain-ai/langchain-experimental/blob/f10d5c3247fb102d4d45d29a35a0266760288542/LICENSE",
+      "sha256": "a01dcffdc1291b4043f2a81d249a9f3e45c9036f2308c9cdfeefe18371371e80",
+      "lines": 21
+    },
+    {
+      "repository": "langchain-ai/langchain-experimental",
+      "commit": "f10d5c3247fb102d4d45d29a35a0266760288542",
+      "path": "README.md",
+      "url": "https://github.com/langchain-ai/langchain-experimental/blob/f10d5c3247fb102d4d45d29a35a0266760288542/README.md",
+      "sha256": "2f63623a4c5f3253f1975826b87415f83603ab79c6b9f03ae5ab24927dfc103c",
+      "lines": 14
+    },
+    {
+      "repository": "langchain-ai/langchain-experimental",
+      "commit": "f10d5c3247fb102d4d45d29a35a0266760288542",
+      "path": "libs/experimental/langchain_experimental/sql/base.py",
+      "url": "https://github.com/langchain-ai/langchain-experimental/blob/f10d5c3247fb102d4d45d29a35a0266760288542/libs/experimental/langchain_experimental/sql/base.py",
+      "sha256": "cde1b7582b2dc8a3bc5d37fd181d46f7e1e6364a1661597ddad53a89020f04f3",
+      "lines": 322
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "LICENSE.md",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/LICENSE.md",
+      "sha256": "ba5a5137c3b381e2c2256e2650bedaf1418a66df4f00d0af45d9bd325b2a0533",
+      "lines": 21
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "README.md",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/README.md",
+      "sha256": "f5b292c6e4479c2a2cc86d64317ff7297d445d2723fef8e9ef32f4a585b1aa69",
+      "lines": 35
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "RQ1/code/app-backend-chain/app_backend.py",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/RQ1/code/app-backend-chain/app_backend.py",
+      "sha256": "3730a9bcaa33bc187b7018cdc11cf419c9543de2c02c98b1d32b22e45bec39dc",
+      "lines": 131
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "RQ1/prompts/RI1.md",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/RQ1/prompts/RI1.md",
+      "sha256": "285a8895fb2e70127b4fb5a89eaad1c682ba056b8880470ad13b122b9e9bf6cd",
+      "lines": 50
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "RQ1/prompts/RI2.md",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/RQ1/prompts/RI2.md",
+      "sha256": "d54714811e2069f93dd458d218abed11d204d7b5b3972e9ed144b04d37cc595e",
+      "lines": 84
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "RQ4/langshield-langchain/README.md",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/RQ4/langshield-langchain/README.md",
+      "sha256": "c9d996834bfb0bab55a813ce2e7682e93178dfc76796aaa1800044a202721ee6",
+      "lines": 9
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "RQ4/langshield-langchain/langshield/sql_query_checker.py",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/RQ4/langshield-langchain/langshield/sql_query_checker.py",
+      "sha256": "c7ef8c2c2eee7e2a348d2e796b0d37bc9553ec2d2cdf410ab8658e06d3b474b9",
+      "lines": 13
+    },
+    {
+      "repository": "rodrigo-pedro/P2SQL",
+      "commit": "ff5a0226b6c63407ae19ba5567ae251b51d4f98e",
+      "path": "RQ4/langshield-langchain/langshield/sql_query_rewriter.py",
+      "url": "https://github.com/rodrigo-pedro/P2SQL/blob/ff5a0226b6c63407ae19ba5567ae251b51d4f98e/RQ4/langshield-langchain/langshield/sql_query_rewriter.py",
+      "sha256": "94b0f422249cf127d76ea8a1fe78b7f3c4e3498c992874580e1ebdd3bd8a4a2b",
+      "lines": 62
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "LICENSE",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/LICENSE",
+      "sha256": "24f40b5190fdacabc24ddbb5f76364d15e4f030925220ea300d8a2dd4993c8cb",
+      "lines": 21
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "README.md",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/README.md",
+      "sha256": "625c49e7dedf84826b350be28d118e7823e669504689105611e91ff709406d1f",
+      "lines": 223
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "llama-index-core/llama_index/core/indices/struct_store/sql_query.py",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/indices/struct_store/sql_query.py",
+      "sha256": "8513b2c96385ecdd1d75d0929ab806989e5bfc47f98b3f6624cde533e2326f95",
+      "lines": 649
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "llama-index-core/llama_index/core/indices/struct_store/sql_retriever.py",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/indices/struct_store/sql_retriever.py",
+      "sha256": "2b7757132b7e6a912984072ad8035aeb90d9afacc79efa32c56a0d5e673d2a26",
+      "lines": 456
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "llama-index-core/llama_index/core/utilities/sql_wrapper.py",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/utilities/sql_wrapper.py",
+      "sha256": "95638ec5d28993170a1c6499901a080b3cd199dc56740200a7c1cbcd0e14ed01",
+      "lines": 281
+    },
+    {
+      "repository": "supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "path": "LICENSE",
+      "url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/LICENSE",
+      "sha256": "2709b46247ffa63d4ac07a9df00de1a47995d6fec89d1390e107d7543eee41fd",
+      "lines": 201
+    },
+    {
+      "repository": "supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "path": "README.md",
+      "url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/README.md",
+      "sha256": "b546179b15f8d2170ecbb0c91eb5e3ed9be04ba604d36eb82205c4676d9c13a3",
+      "lines": 187
+    },
+    {
+      "repository": "supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "path": "packages/mcp-server-supabase/src/platform/api-platform.ts",
+      "url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/packages/mcp-server-supabase/src/platform/api-platform.ts",
+      "sha256": "2b90a173b637d2cbea53dcf27249c9b03def949cd84c6c735a13e8285a001be4",
+      "lines": 1047
+    },
+    {
+      "repository": "supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "path": "packages/mcp-server-supabase/src/server.ts",
+      "url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/packages/mcp-server-supabase/src/server.ts",
+      "sha256": "bebaeb1a85a3a31c4ca35142d33c27bd61c58b6a5f3f1deb78de4a9c72614a8b",
+      "lines": 461
+    },
+    {
+      "repository": "supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "path": "packages/mcp-server-supabase/src/tools/database-operation-tools.ts",
+      "url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/packages/mcp-server-supabase/src/tools/database-operation-tools.ts",
+      "sha256": "267a0d5100499601017da62f9ac9de504100ef09ccf59b72277a96d8b8a3de58",
+      "lines": 644
+    },
+    {
+      "repository": "supabase/mcp",
+      "commit": "8aca22cee8aa32815134dd9eca2d6e4c180ec352",
+      "path": "packages/mcp-server-supabase/src/tools/destructive-sql.ts",
+      "url": "https://github.com/supabase/mcp/blob/8aca22cee8aa32815134dd9eca2d6e4c180ec352/packages/mcp-server-supabase/src/tools/destructive-sql.ts",
+      "sha256": "e350da140fa468ed224fca628885cd6212a78aaf7cb7ae1ff4d8468c0ba52c46",
+      "lines": 319
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "LICENSE",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/LICENSE",
+      "sha256": "55888f30c0ea8fd05cc5490062aac0cc9a67e6d0855c2ae78257d1a92e65f519",
+      "lines": 21
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "README.md",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/README.md",
+      "sha256": "adcbeab09af809005f4f5ff0383890ae8bc3de26fbc49c0245d79a4cc40f6617",
+      "lines": 311
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "README_LEGACY.md",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/README_LEGACY.md",
+      "sha256": "8aac666c13046f75ab29bf6f87dc174224ecf63db823edc52230d769522630ad",
+      "lines": 270
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/core/agent/agent.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/core/agent/agent.py",
+      "sha256": "06733b40e1cd5937db0b4a601c00d0c4da85ff98eefa267d1422df070688e263",
+      "lines": 1407
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/core/registry.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/core/registry.py",
+      "sha256": "22a573190d6bb8f6acdc1ca99fd7daca698aa37f36221189e8d765634ae42b96",
+      "lines": 278
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/core/user/models.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/core/user/models.py",
+      "sha256": "a2f585fcbdfedcc1c4b896b4c89c3e91a3062deead305ef4ec57f5458bb29520",
+      "lines": 25
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/core/user/resolver.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/core/user/resolver.py",
+      "sha256": "d2b3ac187f01445f3ff67977915592b913969a97adce964b2ca3ceb2a5f99a5a",
+      "lines": 42
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/integrations/postgres/sql_runner.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/integrations/postgres/sql_runner.py",
+      "sha256": "466fd15da58be32d84728d1a8e1589dd6eeb6a87652b514ff27111f592986b05",
+      "lines": 112
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/legacy/base/base.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/legacy/base/base.py",
+      "sha256": "b36e3e9a8b8213a322ef957d6c770d073a65c40cf68074966c7d7a0fcb3bfe82",
+      "lines": 2125
+    },
+    {
+      "repository": "vanna-ai/vanna",
+      "commit": "365d0617c1a4567ffee1b19b40c27feb4206bfcf",
+      "path": "src/vanna/tools/run_sql.py",
+      "url": "https://github.com/vanna-ai/vanna/blob/365d0617c1a4567ffee1b19b40c27feb4206bfcf/src/vanna/tools/run_sql.py",
+      "sha256": "446a6d4ff7117c3e853fedcc9d34bfa6061a85625b0d26f782fdf267ee6c4778",
+      "lines": 165
+    }
+  ],
+  "web_sources": [
+    {
+      "id": "M1",
+      "title": "Snowflake Cortex Analyst",
+      "url": "https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst",
+      "evidence_type": "PRODUCT",
+      "supports": "Function, semantic context, API and RBAC",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M2",
+      "title": "Snowflake Cortex Agents",
+      "url": "https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents",
+      "evidence_type": "PRODUCT",
+      "supports": "Tool-based query orchestration",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M3",
+      "title": "BigQuery Conversational Analytics",
+      "url": "https://docs.cloud.google.com/bigquery/docs/conversational-analytics",
+      "evidence_type": "PRODUCT",
+      "supports": "Data agents, selected knowledge sources and Security section",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M4",
+      "title": "Databricks Genie current product entry",
+      "url": "https://docs.databricks.com/aws/en/genie/",
+      "evidence_type": "PRODUCT",
+      "supports": "Current naming and product family",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M5",
+      "title": "Databricks Genie setup and permissions",
+      "url": "https://docs.databricks.com/aws/en/genie/set-up",
+      "evidence_type": "PRODUCT",
+      "supports": "Space, compute and data permissions; version-sensitive details",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M6",
+      "title": "Microsoft Fabric data agent concepts",
+      "url": "https://learn.microsoft.com/en-us/fabric/data-science/concept-data-agent",
+      "evidence_type": "PRODUCT",
+      "supports": "Source routing, SQL/DAX/KQL and requesting-user read-only access",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M7",
+      "title": "Alibaba Cloud DMS Notebook overview",
+      "url": "https://www.alibabacloud.com/help/en/dms/notebook/",
+      "evidence_type": "PRODUCT",
+      "supports": "Data Copilot, NL2SQL and agent capability existence",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C1",
+      "title": "LangChain SQLDatabaseChain Issue 5923",
+      "url": "https://github.com/langchain-ai/langchain/issues/5923",
+      "evidence_type": "DISCLOSURE",
+      "supports": "Historical report with SQLite Chinook reproduction and environment",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C2",
+      "title": "P2SQL paper, arXiv v4",
+      "url": "https://arxiv.org/abs/2308.01990v4",
+      "evidence_type": "RESEARCH",
+      "supports": "Authors, research scope and historical study; do not reuse metrics as local results",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C3",
+      "title": "General Analysis Supabase MCP demonstration",
+      "url": "https://generalanalysis.com/blog/supabase-mcp-blog",
+      "evidence_type": "RESEARCH",
+      "supports": "July 2025 synthetic demonstration; current article says guidance reviewed October 21 2026 without rerunning",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C4",
+      "title": "Supabase Defense in Depth for MCP Servers",
+      "url": "https://supabase.com/blog/mcp",
+      "evidence_type": "PRODUCT_RESPONSE",
+      "supports": "September 16 2025 vendor response; historical claim about customer incident reports and authority context",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C5",
+      "title": "Supabase MCP current documentation",
+      "url": "https://supabase.com/docs/guides/ai-tools/mcp",
+      "evidence_type": "PRODUCT",
+      "supports": "Current setup, trust boundary, prompt-injection scenario and mitigations",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C6",
+      "title": "JFrog Vanna prompt injection RCE disclosure",
+      "url": "https://research.jfrog.com/vulnerabilities/vanna-prompt-injection-rce-jfsa-2024-001034449/",
+      "evidence_type": "DISCLOSURE",
+      "supports": "Historical visualization execution risk; not a current Vanna 2.0 finding",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "C7",
+      "title": "GitHub Advisory CVE-2024-5565",
+      "url": "https://github.com/advisories/GHSA-7735-w2jp-gvg6",
+      "evidence_type": "ADVISORY",
+      "supports": "Historical affected-version record; no modern exploit verification",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "D1",
+      "title": "PostgreSQL 17 row security policies",
+      "url": "https://www.postgresql.org/docs/17/ddl-rowsecurity.html",
+      "evidence_type": "DATABASE_DOC",
+      "supports": "Policy semantics and owner/superuser/BYPASSRLS boundaries",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "D2",
+      "title": "PostgreSQL 17 CREATE VIEW",
+      "url": "https://www.postgresql.org/docs/17/sql-createview.html",
+      "evidence_type": "DATABASE_DOC",
+      "supports": "View owner versus invoker privileges and security-barrier semantics",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "D3",
+      "title": "PostgreSQL 17 administration functions",
+      "url": "https://www.postgresql.org/docs/17/functions-admin.html",
+      "evidence_type": "DATABASE_DOC",
+      "supports": "Configuration and privileged function reference; not exercised",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "S1",
+      "title": "LangChain custom SQL agent guide",
+      "url": "https://docs.langchain.com/oss/python/langgraph/sql-agent",
+      "evidence_type": "FRAMEWORK_DOC",
+      "supports": "Model-generated SQL warning and narrow execution permissions",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "S2",
+      "title": "OWASP improper output handling",
+      "url": "https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/",
+      "evidence_type": "SECURITY_GUIDANCE",
+      "supports": "SQL execution scenario and output trust boundary",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "S3",
+      "title": "OWASP prompt injection prevention cheat sheet",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+      "evidence_type": "SECURITY_GUIDANCE",
+      "supports": "Prompt/data separation, least privilege and layered controls",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M8",
+      "title": "HP customer use of Databricks Genie",
+      "url": "https://www.databricks.com/customers/hp/genie",
+      "evidence_type": "VENDOR_CUSTOMER_STORY",
+      "supports": "Named customer use of natural-language analytics; no independent performance or security verification",
+      "accessed_on": "2026-10-26"
+    },
+    {
+      "id": "M9",
+      "title": "BigQuery Conversational Analytics launch and MoneySuperMarket customer statement",
+      "url": "https://cloud.google.com/blog/products/data-analytics/conversational-analytics-in-bigquery-now-ga/",
+      "evidence_type": "VENDOR_CUSTOMER_STATEMENT",
+      "supports": "Named business adoption and product availability; avoid extrapolating promotional metrics",
+      "accessed_on": "2026-10-26"
+    }
+  ]
+}

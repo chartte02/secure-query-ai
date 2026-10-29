@@ -1,0 +1,34 @@
+{
+  "seed_version": "20261028-v1",
+  "tables": {
+    "students": {
+      "rows": 20,
+      "sha256": "1a25ba262ccc783ab0972354486f17b5847c665a6a3a0e9a6e752fe503b66718"
+    },
+    "teachers": {
+      "rows": 3,
+      "sha256": "4018a8a8504bf98188522255fd78078966b432c7cdc79372db63c8cc04864d1d"
+    },
+    "courses": {
+      "rows": 6,
+      "sha256": "84a83a6a893f41911dad5b68932d5af1b9c9cfeeb3ab6f7c81a3b7b05655bf53"
+    },
+    "course_offerings": {
+      "rows": 8,
+      "sha256": "49e5906aa7bd2d02cd08e6c1e16e47f8ef3ba14041605c389eb62cca019f6393"
+    },
+    "enrollments": {
+      "rows": 60,
+      "sha256": "4e966bd8a192cb4e73df20b67441c4da18d0cf7b6245c5043869a689115d58c0"
+    },
+    "grades": {
+      "rows": 60,
+      "sha256": "0ba9234ba1b8a2d162d60c3551f9fff33e770bfbafe8ca532a2804f4af6f71d3"
+    },
+    "course_feedback": {
+      "rows": 12,
+      "sha256": "04beaecc1712ea3c173910906e7d4502a175c6585d78f17acfa7be020d45a204"
+    }
+  },
+  "sha256": "63ce8f08e7265feda1e36801dff013ee8d9e6dfcef65b84ce5599214aae6354e"
+}

@@ -1,0 +1,13 @@
+# Observed in the local Python 3.12 environment on 2026-10-28.
+colorama==0.4.6
+iniconfig==2.3.1
+packaging==26.3
+pluggy==1.7.0
+psycopg==3.3.6
+psycopg-binary==3.3.6
+Pygments==2.21.0
+pytest==9.2.0
+python-dotenv==1.2.4
+ruff==0.17.3
+typing_extensions==4.16.0
+tzdata==2026.5

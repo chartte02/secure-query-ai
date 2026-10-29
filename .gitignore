@@ -1,0 +1,15 @@
+# Local credentials and Python environment.
+/.env
+/.venv/
+
+# Regenerable Python/tool caches.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Generated experiment evidence; shared documentation remains versioned.
+/artifacts/
+
+# Member B's personal plan only; the other research documents are shared.
+/docs/research/05-member-b-implementation.md
