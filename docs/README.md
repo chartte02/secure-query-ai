@@ -1,6 +1,6 @@
 # 文档总索引
 
-更新日期：2026-10-28。当前已实现数据库与权限基础，模型服务、SQL 网关和前端待接入。
+更新日期：2026-10-29。已合入成员 A 的 AI SQL 服务与成员 B 的数据库/权限基础；成员 C 的 SQL 网关、统一执行入口与前端结果表待接入。
 
 ## 按任务阅读
 
@@ -14,6 +14,7 @@
 | 组织安全案例 | [案例剖析](research/03-security-case-studies.md) | 原始证据、攻击前提和校园映射 |
 | 安排后续开发和实验 | [项目细化计划](research/04-project-plan.md) | 研究与实施目标，部分尚待完成 |
 | 查询原始方案和分工 | [总体设计](project-design.md)、[三人分工](team-division.md) | 原文件保留；内容不等于已实现功能 |
+| 查看 A/B 分支合并与验证结果 | [成员 A/B 合并验证记录](member-ab-verification.md) | 2026-10-29 合并、分别验证与遗留问题 |
 
 研究文档的详细目录和证据边界见 [research/README.md](research/README.md)，原始来源及源码文件摘要见 [source-inventory.json](research/source-inventory.json)。
 
