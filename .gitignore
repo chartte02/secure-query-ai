@@ -25,3 +25,6 @@ artifacts/database-evidence.json
 
 # 成员 B 的个人实施计划；其余调研文档共享提交。
 /docs/research/05-member-b-implementation.md
+
+# CodeGraph 本地代码图谱索引（成员 C 使用的 agent 工具）。
+.codegraph/
