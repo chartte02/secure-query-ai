@@ -1,6 +1,6 @@
 # 文档总索引
 
-更新日期：2026-10-29。已合入成员 A 的 AI SQL 服务与成员 B 的数据库/权限基础；成员 C 的 SQL 网关、统一执行入口与前端结果表待接入。
+更新日期：2026-11-01。已合入成员 A 的 AI SQL 服务与成员 B 的数据库/权限基础；成员 B 已交付 S4 冻结评估样例集（60 条）；成员 C 的 SQL 网关、统一执行入口与前端结果表待接入。
 
 ## 按任务阅读
 
@@ -9,6 +9,7 @@
 | 启动环境、运行测试 | [根 README](../README.md) | 可执行操作说明 |
 | A/C 接入数据库 | [数据库接入契约](database-contract.md) | 已实现接口和授权规则 |
 | 检查目前验证了什么 | [数据库验证记录](database-validation.md) | 71 项自动测试及固定 SQL 对照；不代表模型攻击结果 |
+| S4 正式评估样例集（60 条冻结） | [evaluation.json](../tests/attacks/cases/evaluation.json) | 20 正常/10 跨用户/8 敏感/8 直接/8 间接/6 危险；预期行 hardened 实测，配套契约测试 |
 | 了解课题应用背景 | [市场与应用调研](research/01-market-landscape.md) | 2026-10-26 的来源核查 |
 | 找相近项目及源码 | [开源实现调研](research/02-open-source-implementations.md) | 固定提交、入口、许可与借鉴建议 |
 | 组织安全案例 | [案例剖析](research/03-security-case-studies.md) | 原始证据、攻击前提和校园映射 |
