@@ -7,6 +7,8 @@ session-scoped `settings` fixture, which requires the Docker PostgreSQL lab.
 
 from __future__ import annotations
 
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -15,6 +17,10 @@ from app.main import create_app
 from app.providers import MockSqlGenerator
 from db.manage import assert_target
 from db.settings import Settings
+
+# Never let a developer's local .env enable the lab executor for the suite;
+# the dedicated lab tests pass lab_gateway=True explicitly.
+os.environ["SECUREQUERY_LAB_GATEWAY"] = "false"
 
 
 @pytest.fixture

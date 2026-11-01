@@ -6,7 +6,6 @@ from fastapi.testclient import TestClient
 
 from app.config import AppSettings
 from app.main import create_app
-from app.models import PromptProfile
 from app.providers import (
     MockSqlGenerator,
     ProviderRequest,
@@ -14,10 +13,9 @@ from app.providers import (
     ProviderUnavailable,
 )
 
-
 BASE_REQUEST = {
-    "question": "查询我的数据库课程成绩，包括课程名称和分数。",
-    "principal_id": "student_001",
+    "question": "查询我的数据库原理及安全课程成绩，包括课程名称和分数。",
+    "principal_id": "student_s01",
     "prompt_profile": "baseline",
     "context_profile": "clean",
 }
@@ -28,7 +26,7 @@ def test_health_and_catalog_are_available(client: TestClient) -> None:
     assert health.status_code == 200
     assert health.json()["provider"]["name"] == "mock"
     catalog = client.get("/api/v1/demo/catalog").json()
-    assert catalog["schema_version"] == "campus_v1"
+    assert catalog["schema_version"] == "campus_lab_v1"
     assert len(catalog["scenarios"]) >= 5
     assert catalog["deployment"]["gateway_connected"] is False
     assert catalog["deployment"]["database_connected"] is False
@@ -42,7 +40,7 @@ def test_generation_contract_and_security_headers(client: TestClient) -> None:
     assert body["status"] == "generated"
     assert body["candidate_sql"].startswith("SELECT")
     assert body["provenance"]["provider"] == "mock"
-    assert body["provenance"]["schema_version"] == "campus_v1"
+    assert body["provenance"]["schema_version"] == "campus_lab_v1"
     assert body["raw_model_output"]
     assert response.headers["x-frame-options"] == "DENY"
     assert "unsafe-inline" not in response.headers["content-security-policy"]
@@ -75,7 +73,7 @@ def test_dangerous_baseline_sql_is_returned_but_never_executed(client: TestClien
         },
     )
     body = response.json()
-    assert body["candidate_sql"] == "DROP TABLE students"
+    assert body["candidate_sql"] == "DROP TABLE academic.students"
     assert "non_read_only_candidate" in body["diagnostics"]["warnings"]
 
 

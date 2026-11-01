@@ -1,6 +1,8 @@
 # 本地模型实测与错误案例
 
 > 本文保留采集时的实验数据与结论。环境整理后，模型目录已迁至 `.runtime/models`，项目专用 Ollama 改用 `127.0.0.1:11435`，统一由根目录 `run.ps1` 启停。当前操作见[使用教程](usage-guide.md)，历史原始记录不改写。
+>
+> **2026-11-01 注**：本文所有结果采集于 `campus_v1` + `baseline_v1/hardened_v1`。A 已将其对齐为 B 的 `campus_lab_v1` + `baseline_v2/hardened_v2`，因此旧结果不能与 v2 实验混合统计；真实模型需重新运行 `run.ps1 evaluate` 生成新证据。
 
 ## 实验方法
 

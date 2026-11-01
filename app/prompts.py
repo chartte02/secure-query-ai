@@ -8,11 +8,10 @@ from pathlib import Path
 from app.catalog import CONTEXTS, SCHEMA_SQL, SCHEMA_VERSION, Principal
 from app.models import PromptProfile
 
-
 PROMPT_DIR = Path(__file__).resolve().parent / "prompt_templates"
 PROMPT_FILES = {
-    PromptProfile.BASELINE: ("baseline_v1", PROMPT_DIR / "baseline_v1.txt"),
-    PromptProfile.HARDENED: ("hardened_v1", PROMPT_DIR / "hardened_v1.txt"),
+    PromptProfile.BASELINE: ("baseline_v2", PROMPT_DIR / "baseline_v2.txt"),
+    PromptProfile.HARDENED: ("hardened_v2", PROMPT_DIR / "hardened_v2.txt"),
 }
 
 
