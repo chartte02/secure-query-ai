@@ -11,6 +11,7 @@
 | 总体设计与三人分工 | [docs/project-design.md](docs/project-design.md)、[docs/team-division.md](docs/team-division.md) |
 | 成员 A：AI SQL 服务 | [docs/usage-guide.md](docs/usage-guide.md)、[docs/local-model-evaluation.md](docs/local-model-evaluation.md)、[docs/integration.md](docs/integration.md) |
 | 成员 B：数据库与攻击 | [docs/README.md](docs/README.md)、[docs/database-contract.md](docs/database-contract.md)、[docs/database-validation.md](docs/database-validation.md) |
+| 成员 B：数据字典与攻击案例卡 | [docs/data-dictionary.md](docs/data-dictionary.md)、[docs/attack-cases.md](docs/attack-cases.md) |
 | 成员 B：应用背景与开源调研 | [docs/research/README.md](docs/research/README.md) |
 | A/B 分支合并与验证记录（成员 C） | [docs/member-ab-verification.md](docs/member-ab-verification.md) |
 | A/B/C 联调待办（A 视角） | [docs/team-bc-handoff.md](docs/team-bc-handoff.md) |
