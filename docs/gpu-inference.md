@@ -109,6 +109,13 @@ find /usr/local /usr/lib -name 'libggml-base.so*' 2>/dev/null
 3. `nvidia-smi` 能观察到 Ollama compute 进程和显存占用；
 4. 最小 `READY` 请求和项目完整 Prompt 分别完成一次，记录耗时后再启动 API。
 
+本次未通过上述门槛，因此没有重新启动前端进行 GPU 验收。仓库自身的
+FastAPI 入口固定为 `127.0.0.1:8000`；日志中的 `127.0.0.1:8755`
+不是本仓库配置的 API 端口，应先确认它是否属于旧服务或另一套前端后端。
+WSL 中虽然存在 Windows Ollama 可执行文件，但当前互操作调用报
+`UtilBindVsockAnyPort`，没有形成可验证的 Windows Ollama HTTP 服务；
+不能把该文件存在当成 GPU 服务已接入。
+
 ## 4. 项目连接配置
 
 项目只通过本地 Ollama HTTP 接口调用模型，不需要在 Python 中安装 CUDA 或 PyTorch。确认 GPU 生效后，将 `.env` 设置为：
