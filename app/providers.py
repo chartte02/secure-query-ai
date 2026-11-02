@@ -136,6 +136,27 @@ class MockSqlGenerator:
         return None
 
 
+def _strip_length_constraints(schema: object) -> object:
+    """Return a JSON-schema copy without maxLength/minLength constraints.
+
+    Ollama 0.21.x llamarunner crashes while converting maxLength inside format
+    grammars ("model runner has unexpectedly stopped"). Length limits stay
+    enforced by pydantic when the response is parsed into ModelGeneration.
+    """
+    if isinstance(schema, dict):
+        return {
+            key: _strip_length_constraints(value)
+            for key, value in schema.items()
+            if key not in ("maxLength", "minLength")
+        }
+    if isinstance(schema, list):
+        return [_strip_length_constraints(item) for item in schema]
+    return schema
+
+
+OLLAMA_FORMAT_SCHEMA = _strip_length_constraints(ModelGeneration.model_json_schema())
+
+
 class OllamaSqlGenerator:
     name = "ollama"
 
@@ -229,7 +250,7 @@ class OllamaSqlGenerator:
             "model": self.model,
             "messages": request.messages,
             "stream": False,
-            "format": ModelGeneration.model_json_schema(),
+            "format": OLLAMA_FORMAT_SCHEMA,
             "options": {
                 "temperature": 0,
                 "seed": 42,
@@ -258,4 +279,3 @@ def create_provider(settings: AppSettings) -> SqlGenerator:
     if settings.provider == "ollama":
         return OllamaSqlGenerator(settings)
     return MockSqlGenerator()
-
