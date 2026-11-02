@@ -4,6 +4,7 @@ import hashlib
 import json
 import logging
 
+from app.audit_writer import AuditWriter
 from app.gateway import GatewayUnavailable, NotConnectedGateway, SqlGateway
 from app.models import (
     GatewayHandoff,
@@ -24,9 +25,15 @@ class QueryService:
     candidate SQL to the gateway and reports the decision unchanged.
     """
 
-    def __init__(self, generations: GenerationService, gateway: SqlGateway) -> None:
+    def __init__(
+        self,
+        generations: GenerationService,
+        gateway: SqlGateway,
+        audit_writer: AuditWriter | None = None,
+    ) -> None:
         self.generations = generations
         self.gateway = gateway
+        self.audit_writer = audit_writer
 
     @property
     def executor(self) -> str:
@@ -57,7 +64,7 @@ class QueryService:
                 result=None,
                 executor=self.executor,
             )
-            self._audit(request_id, response, sql_digest=None)
+            await self._audit(request_id, request.principal_id, response, sql_digest=None)
             return response
 
         handoff = GatewayHandoff(
@@ -85,7 +92,7 @@ class QueryService:
                 result=None,
                 executor=self.executor,
             )
-            self._audit(request_id, response, sql_digest=sql_digest)
+            await self._audit(request_id, request.principal_id, response, sql_digest=sql_digest)
             return response
 
         if outcome.error is not None:
@@ -109,11 +116,37 @@ class QueryService:
                 db_role=outcome.db_role,
                 executor=self.executor,
             )
-        self._audit(request_id, response, sql_digest=sql_digest)
+        await self._audit(request_id, request.principal_id, response, sql_digest=sql_digest)
         return response
 
-    @staticmethod
-    def _audit(request_id: str, response: QueryResponse, sql_digest: str | None) -> None:
+    async def _audit(
+        self,
+        request_id: str,
+        actor_id: str,
+        response: QueryResponse,
+        sql_digest: str | None,
+    ) -> None:
+        decision = response.gateway.decision if response.gateway else "ERROR"
+        reason_code = (
+            response.gateway.reason_code
+            if response.gateway
+            else response.error.code
+            if response.error
+            else response.status
+        )
+        if self.audit_writer is not None:
+            try:
+                await self.audit_writer.append(
+                    request_id=request_id,
+                    actor_id=actor_id,
+                    db_role=response.db_role or "none",
+                    event_type="query_completed",
+                    decision=decision,
+                    reason_code=reason_code,
+                    sql_digest=sql_digest or hashlib.sha256(b"").hexdigest(),
+                )
+            except Exception:
+                LOGGER.exception("audit_writer_failed request_id=%s", request_id)
         LOGGER.info(
             json.dumps(
                 {

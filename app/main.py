@@ -13,6 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from app.audit_writer import AuditWriter, DatabaseAuditWriter
 from app.catalog import SCHEMA_VERSION, public_catalog
 from app.config import AppSettings
 from app.gateway import GatewayUnavailable, NotConnectedGateway, SqlGateway
@@ -53,6 +54,7 @@ def create_app(
     settings: AppSettings | None = None,
     provider: SqlGenerator | None = None,
     gateway: SqlGateway | None = None,
+    audit_writer: AuditWriter | None = None,
 ) -> FastAPI:
     resolved_settings = settings or AppSettings()
     resolved_provider = provider or create_provider(resolved_settings)
@@ -64,9 +66,16 @@ def create_app(
         from app.lab_gateway import LocalLabGateway
 
         resolved_gateway = LocalLabGateway()
+    elif resolved_settings.demo_mode and resolved_settings.formal_gateway:
+        from app.real_gateway import RealGateway
+
+        resolved_gateway = RealGateway()
     else:
         resolved_gateway = NotConnectedGateway()
-    query_service = QueryService(service, resolved_gateway)
+    resolved_audit_writer = audit_writer
+    if resolved_audit_writer is None and resolved_settings.formal_gateway:
+        resolved_audit_writer = DatabaseAuditWriter()
+    query_service = QueryService(service, resolved_gateway, resolved_audit_writer)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:

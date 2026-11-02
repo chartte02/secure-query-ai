@@ -69,7 +69,15 @@ def diagnose_sql(sql: str | None) -> SqlDiagnostics:
         warnings.append("multiple_statements")
     if any(isinstance(statement, exp.Command) for statement in statements):
         warnings.append("unsupported_statement_syntax")
-    modifying_nodes = (exp.Insert, exp.Update, exp.Delete, exp.Drop, exp.Create, exp.Alter, exp.Into)
+    modifying_nodes = (
+        exp.Insert,
+        exp.Update,
+        exp.Delete,
+        exp.Drop,
+        exp.Create,
+        exp.Alter,
+        exp.Into,
+    )
     if any(not isinstance(statement, exp.Query) for statement in statements) or any(
         isinstance(node, modifying_nodes) for statement in statements for node in statement.walk()
     ):

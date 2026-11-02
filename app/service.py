@@ -20,7 +20,6 @@ from app.providers import (
     SqlGenerator,
 )
 
-
 LOGGER = logging.getLogger("securequery.audit")
 
 

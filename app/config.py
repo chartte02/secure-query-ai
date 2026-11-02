@@ -46,6 +46,8 @@ class AppSettings(BaseSettings):
     # Lab-only direct executor for observing member B's database controls.
     # It is not member C's policy gateway and is ignored outside demo mode.
     lab_gateway: bool = False
+    # Explicit opt-in for C's formal gateway. Keep the safe unavailable default.
+    formal_gateway: bool = False
     model: Literal["qwen2.5-coder:7b", "qwen2.5-coder:3b"] = "qwen2.5-coder:7b"
     ollama_base_url: str = "http://127.0.0.1:11435"
     connect_timeout_seconds: float = Field(default=2.0, gt=0, le=10)
