@@ -69,10 +69,11 @@ python -m venv .venv
 # 成员 A：API / Provider / 提示词 / 前端安全（Mock，不依赖 Ollama 或数据库）
 python -m pytest tests/test_api.py tests/test_config.py tests/test_diagnostics.py \
   tests/test_evaluation.py tests/test_frontend_security.py tests/test_prompts.py \
+  tests/test_providers.py tests/test_generation_attacks.py
   tests/test_providers.py tests/attacks/test_generation_attacks.py \
   tests/test_schema_contract.py tests/test_query_route.py
 
-# 成员 B：数据库与攻击回归（需先启动 Docker PostgreSQL）
+# 成员 B：数据库与攻击回归（需先启动 Docker PostgreSQL；只依赖 requirements-dev.lock）
 python -m pytest tests/db tests/attacks -q
 
 # 成员 A：真实 Ollama 集成（需本地模型并显式开启）
