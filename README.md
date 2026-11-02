@@ -2,12 +2,13 @@
 
 以合成校园教务数据研究“自然语言数据库助手”的安全风险。项目把三件事分开验证：模型能否生成符合问题与身份范围的候选 SQL（成员 A）、合成 PostgreSQL 的权限与攻击数据是否可复现（成员 B），以及独立 SQL 网关能否确定性阻断越权和危险 SQL（成员 C，进行中）。
 
-当前状态：**成员 A 的“自然语言 → 候选 SQL”服务与成员 B 的“PostgreSQL 数据库 / 权限 / 攻击用例”已合入；成员 C 的 SQL 安全网关、统一执行入口与最终结果表尚未实现。** 页面显示的候选 SQL 只供观察，当前服务不会执行它。
+当前状态：A/B 已同步到 `campus_lab_v1`，A 的查询编排与实验室回放已实现；C 的策略网关尚未接入，默认返回 `503 unavailable`。完整进度、接口字段与剩余工作见 [docs/status.md](docs/status.md)。页面显示的候选 SQL 仍不会被执行。
 
 ## 目录与阅读入口
 
 | 内容 | 入口 |
 | --- | --- |
+| 当前进度、接口与剩余工作 | [docs/status.md](docs/status.md) |
 | 总体设计与三人分工 | [docs/project-design.md](docs/project-design.md)、[docs/team-division.md](docs/team-division.md) |
 | 成员 A：AI SQL 服务 | [docs/usage-guide.md](docs/usage-guide.md)、[docs/local-model-evaluation.md](docs/local-model-evaluation.md)、[docs/integration.md](docs/integration.md) |
 | 成员 B：数据库与攻击 | [docs/README.md](docs/README.md)、[docs/database-contract.md](docs/database-contract.md)、[docs/database-validation.md](docs/database-validation.md) |
@@ -59,15 +60,21 @@ python -m venv .venv
 
 重置只接受固定实验目标并核查本地安装标识：`scripts/reset_db.py`。A/C 接入数据库的契约见 [docs/database-contract.md](docs/database-contract.md)。
 
+### 查看 B 的数据库控制效果（实验室模式）
+
+需要 `SECUREQUERY_DEMO_MODE=true` 与 `SECUREQUERY_LAB_GATEWAY=true`（默认关闭）。它不是 C 的策略网关，只用于本地演示；接口、字段与命令见 [docs/status.md](docs/status.md) 和 [docs/usage-guide.md](docs/usage-guide.md)。
+
 ## 运行测试
 
 ```bash
 # 成员 A：API / Provider / 提示词 / 前端安全（Mock，不依赖 Ollama 或数据库）
 python -m pytest tests/test_api.py tests/test_config.py tests/test_diagnostics.py \
   tests/test_evaluation.py tests/test_frontend_security.py tests/test_prompts.py \
-  tests/test_providers.py tests/attacks/test_generation_attacks.py
+  tests/test_providers.py tests/test_generation_attacks.py
+  tests/test_providers.py tests/attacks/test_generation_attacks.py \
+  tests/test_schema_contract.py tests/test_query_route.py
 
-# 成员 B：数据库与攻击回归（需先启动 Docker PostgreSQL）
+# 成员 B：数据库与攻击回归（需先启动 Docker PostgreSQL；只依赖 requirements-dev.lock）
 python -m pytest tests/db tests/attacks -q
 
 # 成员 A：真实 Ollama 集成（需本地模型并显式开启）
@@ -78,7 +85,7 @@ $env:SECUREQUERY_RUN_OLLAMA_TESTS="1"; python -m pytest tests/test_ollama_integr
 
 ```mermaid
 flowchart LR
-    UI[网页：问题、演示身份、场景] --> Q[查询编排：待 C 实现]
+    UI[网页：问题、演示身份、场景] --> Q[查询编排：A 已实现]
     Q -->|可信身份 + 问题| A[成员 A：生成候选 SQL]
     A -->|候选 + 请求 ID + Schema 版本| C[成员 C：独立解析、授权、只读执行]
     C -->|只读事务| B[成员 B：合成 PostgreSQL]
@@ -87,7 +94,7 @@ flowchart LR
     Q -->|统一状态与结果表格| UI
 ```
 
-`POST /api/v1/queries` 目前只有[接口样例](docs/integration.md)，尚未实现路由。模型输出默认视为不可信，必须经 C 的网关授权后才能执行；B 的数据库连接不提供绕过网关的模型执行接口。
+`POST /api/v1/queries` 已实现编排与契约（见[联调契约](docs/integration.md)），C 未接入时返回 503 `unavailable`。模型输出默认视为不可信，必须经 C 的网关授权后才能执行；B 的数据库连接不提供绕过网关的模型执行接口。
 
 ## 边界与安全
 

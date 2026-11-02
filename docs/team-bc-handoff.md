@@ -1,5 +1,7 @@
 # 给成员 B、C 的待核实与待完成清单
 
+> **2026-11-01 状态更新**：A 已完成 Schema/身份对齐、`POST /api/v1/queries` 编排、实验室直连与固定回放。当前进度与剩余工作以 [状态与交接](status.md) 为准；本文保留为联调待办清单，其中“`/api/v1/queries` 尚未实现”等旧描述已过时。
+
 本文用于三人联调。当前项目完成了成员 A 的候选 SQL 生成与攻防对照；**没有 PostgreSQL 建库脚本、C 网关、真实查表接口或数据库结果表格**。下文标注“建议新增”的文件目前不存在，是建议的代码归属；若 B/C 在自己的仓库开发，请交付同版本文件及可复现命令，再由三人决定如何合入。
 
 ## 先确认现有接口与占位
@@ -12,7 +14,7 @@
 | [`app/models.py`](../app/models.py) 的 `GatewayHandoff` | 定义 `request_id`、`principal_id`、`candidate_sql`、`schema_version` 四个字段 | 只是交接数据模型，尚无调用 C 的代码 |
 | [`app/diagnostics.py`](../app/diagnostics.py) 的 `diagnose_sql()` | 给出解析、语句数、表/列和危险候选警告 | C 必须独立重新解析并授权；A 的诊断不是 `ALLOW` |
 | [`frontend/index.html`](../frontend/index.html) 的第三列与 [`frontend/app.js`](../frontend/app.js) 的 `runExperiment()` | 显示准备交给网关的 JSON | 前端目前没有发送到 C，也没有展示数据库行 |
-| [`docs/integration.md`](integration.md) 的 `POST /api/v1/queries` | 未来请求、状态和结果 JSON 示例 | **接口尚未实现**；示例分数不是实测结果 |
+| [`docs/integration.md`](integration.md) 的 `POST /api/v1/queries` | 请求、状态和结果 JSON 示例 | 2026-11-01 已实现编排与契约；C 未接入时返回 503 `unavailable`。示例分数不是实测结果 |
 
 ## 成员 B：数据库与攻击样例
 

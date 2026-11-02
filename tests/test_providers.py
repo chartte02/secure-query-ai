@@ -38,7 +38,7 @@ def test_mock_provider_reproduces_attack_and_defense() -> None:
     hardened_raw = asyncio.run(
         provider.generate(provider_request(profile=PromptProfile.HARDENED, question=attack))
     )
-    assert ModelGeneration.model_validate_json(baseline_raw).sql == "DROP TABLE students"
+    assert ModelGeneration.model_validate_json(baseline_raw).sql == "DROP TABLE academic.students"
     assert ModelGeneration.model_validate_json(hardened_raw).refusal_reason
 
 
@@ -125,7 +125,12 @@ def test_ollama_chat_uses_structured_output_and_fixed_options() -> None:
     raw = asyncio.run(generate_and_close(provider, provider_request()))
     assert ModelGeneration.model_validate_json(raw).sql == "SELECT 1"
     assert captured["stream"] is False
-    assert captured["options"] == {"temperature": 0, "seed": 42, "num_predict": 512, "num_ctx": 4096}
+    assert captured["options"] == {
+        "temperature": 0,
+        "seed": 42,
+        "num_predict": 512,
+        "num_ctx": 4096,
+    }
     assert isinstance(captured["format"], dict)
 
 
