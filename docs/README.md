@@ -12,7 +12,7 @@
 | 了解总体架构 | [project-design.md](project-design.md) |
 | 查看三人分工 | [team-division.md](team-division.md) |
 | 查看本次 A/B/C 验证结果 | [acceptance-report.md](acceptance-report.md)、[c-gateway-verification.md](c-gateway-verification.md) |
-| 在 WSL 中启动和排障 | [wsl-guide.md](wsl-guide.md) |
+| 在 Windows 中启动和排障 | [windows-guide.md](windows-guide.md) |
 
 ## 按成员查找
 
@@ -20,7 +20,7 @@
 
 | 内容 | 文档 |
 | --- | --- |
-| 服务使用、接口和启动 | [usage-guide.md](usage-guide.md)、[wsl-guide.md](wsl-guide.md) |
+| 服务使用、接口和启动 | [usage-guide.md](usage-guide.md)、[windows-guide.md](windows-guide.md) |
 | Ollama/Mock 模型评估 | [local-model-evaluation.md](local-model-evaluation.md) |
 | GPU 推理检查与排障 | [gpu-inference.md](gpu-inference.md) |
 
@@ -62,14 +62,14 @@
 | 项目设计与研究计划 | [project-design.md](project-design.md)、[research/04-project-plan.md](research/04-project-plan.md) |
 | 接口与数据库契约 | [integration.md](integration.md)、[database-contract.md](database-contract.md)、[data-dictionary.md](data-dictionary.md) |
 | 实际验证与验收 | [acceptance-report.md](acceptance-report.md)、[status.md](status.md)、[c-gateway-verification.md](c-gateway-verification.md)、[database-validation.md](database-validation.md)、[member-b-verification.md](member-b-verification.md) |
-| 使用、启动与模型评估 | [usage-guide.md](usage-guide.md)、[wsl-guide.md](wsl-guide.md)、[local-model-evaluation.md](local-model-evaluation.md)、[gpu-inference.md](gpu-inference.md) |
+| 使用、启动与模型评估 | [usage-guide.md](usage-guide.md)、[windows-guide.md](windows-guide.md)、[local-model-evaluation.md](local-model-evaluation.md)、[gpu-inference.md](gpu-inference.md) |
 | 攻击、实验与写权限演示 | [attack-cases.md](attack-cases.md)、[write-lab-experiment.md](write-lab-experiment.md) |
 | 团队协作与交接 | [team-division.md](team-division.md)、[team-bc-handoff.md](team-bc-handoff.md)、[member-ab-verification.md](member-ab-verification.md) |
 | C 实现阶段计划 | [superpowers/plans/2026-11-02-c-gateway-gpu-plan.md](superpowers/plans/2026-11-02-c-gateway-gpu-plan.md) |
 
 ## 环境与历史资料
 
-- [wsl-guide.md](wsl-guide.md)：WSL 环境、Docker、Ollama、端口和常见故障的启动记录；
+- [windows-guide.md](windows-guide.md)：Windows 原生环境、Docker、Ollama GPU、端口和常见故障的启动记录；
 - [archive/](archive/)：阶段性旧方案和成员个人记录，只用于追溯，不作为当前实现状态；
 - [member-ab-verification.md](member-ab-verification.md)：A/B 合并阶段的历史验证记录，当前实测以 [acceptance-report.md](acceptance-report.md) 和 [c-gateway-verification.md](c-gateway-verification.md) 为准；
 - `temp/`：已过时但有追溯价值的阶段性文档，不作为当前启动或验收入口。
@@ -86,7 +86,7 @@
 ### 临时资料
 
 - [temp/member-a-ai-sql-server-guide.md](temp/member-a-ai-sql-server-guide.md)：C 接入前的 A 单人联调指南，保留作历史参考；
-- 不要从 `archive/` 或 `temp/` 复制当前启动命令，优先使用 [wsl-guide.md](wsl-guide.md)。
+- 不要从 `archive/` 或 `temp/` 复制当前启动命令，优先使用 [windows-guide.md](windows-guide.md)。
 
 ## 代码与产物索引
 

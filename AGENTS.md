@@ -22,8 +22,9 @@ configuration. Never commit real student or personal data.
 
 ## Build, Test, and Development Commands
 
-Run commands from the repository root. For the complete WSL sequence, use
-[`docs/wsl-guide.md`](docs/wsl-guide.md); do not invent a second startup path.
+Run commands from the repository root. For the complete Windows startup
+sequence, use [`docs/windows-guide.md`](docs/windows-guide.md); do not invent a
+second startup path.
 
 ```bash
 .venv/bin/python -m pytest -q
@@ -46,7 +47,7 @@ Use Python 3.11+ with four-space indentation and type hints. Use `snake_case`
 for modules, functions, and variables; `PascalCase` for classes; and uppercase
 names for constants. Keep SQL policy checks small and independently testable.
 Format and lint changed Python files with Ruff. The current C gate is the
-scoped command in `docs/wsl-guide.md`; do not claim full-repository Ruff
+scoped command in `docs/windows-guide.md`; do not claim full-repository Ruff
 success unless all historical A files also pass.
 
 ## Testing Guidelines

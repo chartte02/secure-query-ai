@@ -2,7 +2,7 @@
 
 > **2026-11-02 状态更新**：A/B 已完成 Schema/身份对齐，C 已接入正式 `RealGateway`、审计和前端安全查询。当前实测以 [状态与交接](status.md) 和 [C 验证记录](c-gateway-verification.md) 为准；本文保留为身份、权限和接口交接清单。
 
-本文记录当前三人联调的边界、入口和验收责任。A/B/C 的主要代码已经合入 `main`；历史规划中的“建议新增”文件不再作为当前任务清单。完整启动命令见 [WSL 指南](wsl-guide.md)，完整结果见 [验收报告](acceptance-report.md)。
+本文记录当前三人联调的边界、入口和验收责任。A/B/C 的主要代码已经合入 `main`；历史规划中的“建议新增”文件不再作为当前任务清单。完整启动命令见 [Windows 启动指南](windows-guide.md)，完整结果见 [验收报告](acceptance-report.md)。
 
 ## 先确认现有接口与占位
 
@@ -51,7 +51,7 @@ B/C 需要先共同确定政策矩阵：哪些身份可见哪些表和列；`pho
 2. **再做安全执行。** C 在合成库上通过 `ALLOW`、`MASK`、`BLOCK` 测试后，约定固定的网关调用方式。交给 C 的四字段结构见 [`GatewayHandoff`](../app/models.py)，但可信身份必须由服务端取得；浏览器当前的 `principal_id` 只是演示夹具，C 不能直接相信它。
 3. **新增查询编排。** A/C 建议新建 `app/query_service.py`，并在 [`app/main.py`](../app/main.py) 增加 `POST /api/v1/queries`，在 [`app/models.py`](../app/models.py) 增加请求和统一响应模型。编排端点先取得可信身份，再内部调用生成服务；有候选才调用 C，并返回生成、网关、结果三部分。请求/响应样例和 `refused`、`blocked`、`executed`、`unavailable` 状态见 [`docs/integration.md`](integration.md)。浏览器不能把自己编辑的 SQL 回传为执行来源。
 4. **最后接页面。** A/C 在 [`frontend/index.html`](../frontend/index.html) 和 [`frontend/app.js`](../frontend/app.js) 增加独立“安全查询”入口和结果表格；保留当前双提示词实验。只渲染 C 处理后的行、列、脱敏标记与审计 ID，区分“查询成功但无行”“模型拒答”“C 阻断”“服务错误”。所有模型文本与数据库值继续以文本节点渲染。
-5. **做端到端验收。** 使用 `docs/wsl-guide.md` 的启动顺序和 `docs/c-gateway-verification.md` 的命令检查正常成绩、敏感列、跨学生、DML/DDL、多语句、RLS 空结果、脱敏和审计。真实执行正确率、泄露率、拦截率和误拦截率仍需基于固定实验集单独统计；[`scripts/evaluate.py`](../scripts/evaluate.py) 只测模型生成。
+5. **做端到端验收。** 使用 `docs/windows-guide.md` 的启动顺序和 `docs/c-gateway-verification.md` 的命令检查正常成绩、敏感列、跨学生、DML/DDL、多语句、RLS 空结果、脱敏和审计。真实执行正确率、泄露率、拦截率和误拦截率仍需基于固定实验集单独统计；[`scripts/evaluate.py`](../scripts/evaluate.py) 只测模型生成。
 
 完成时应能从空库启动，页面的一次自然语言输入贯穿同一个请求 ID，展示候选 SQL、C 的策略决策和真实合成数据结果；危险候选在 A 页面可见，但在 C/B 链路中没有被执行。成员 C 还需按[分工说明](team-division.md)整合最终实验结果、汇报材料和演练证据。
 

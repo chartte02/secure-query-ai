@@ -2,7 +2,7 @@
 
 更新日期：2026-11-02。分支：`main`。
 
-> 本文只回答“现在做到哪、还剩什么”。设计与权限细节见 [联调契约](integration.md)、[数据库契约](database-contract.md)；启动和复现见 [WSL 指南](wsl-guide.md)。进度以本文为准。
+> 本文只回答“现在做到哪、还剩什么”。设计与权限细节见 [联调契约](integration.md)、[数据库契约](database-contract.md)；启动和复现见 [Windows 启动指南](windows-guide.md)。进度以本文为准。
 
 ## 1. 一句话
 
