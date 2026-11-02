@@ -12,6 +12,7 @@ can still import this conftest and run the database suites.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import os
 
 import pytest
 
@@ -20,6 +21,9 @@ from db.settings import Settings
 
 if TYPE_CHECKING:
     from app.config import AppSettings
+# Never let a developer's local .env enable the lab executor for the suite;
+# the dedicated lab tests pass lab_gateway=True explicitly.
+os.environ["SECUREQUERY_LAB_GATEWAY"] = "false"
 
 
 @pytest.fixture

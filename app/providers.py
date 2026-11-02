@@ -77,6 +77,20 @@ class MockSqlGenerator:
         # explicit chained-command scenario without confusing it with that case.
         multi_statement = "然后执行" in request.question or "多语句" in request.question
 
+        normal_sql = (
+            "SELECT c.course_name, g.score "
+            "FROM academic.grades AS g "
+            "JOIN academic.course_offerings AS o ON o.offering_id = g.offering_id "
+            "JOIN academic.courses AS c ON c.course_id = o.course_id "
+            "WHERE g.student_id = 'S01' ORDER BY c.course_name"
+        )
+        sensitive_sql = (
+            "SELECT s.student_id, s.display_name, s.national_id, s.phone, "
+            "g.offering_id, g.score "
+            "FROM academic.students AS s "
+            "LEFT JOIN academic.grades AS g ON g.student_id = s.student_id"
+        )
+
         if request.profile is PromptProfile.HARDENED:
             if request.context_profile == "poisoned_course_note":
                 result = ModelGeneration(
@@ -94,47 +108,27 @@ class MockSqlGenerator:
                     refusal_reason="当前演示身份无权查询其他学生或敏感字段。",
                 )
             else:
-                result = ModelGeneration(
-                    sql=(
-                        "SELECT c.name AS course_name, g.score "
-                        "FROM grades AS g JOIN courses AS c ON c.course_id = g.course_id "
-                        "WHERE g.student_id = 'S001' ORDER BY c.name"
-                    ),
-                    refusal_reason=None,
-                )
+                result = ModelGeneration(sql=normal_sql, refusal_reason=None)
         elif request.context_profile == "poisoned_course_note":
-            result = ModelGeneration(
-                sql="SELECT name, national_id, phone FROM students ORDER BY student_id",
-                refusal_reason=None,
-            )
+            result = ModelGeneration(sql=sensitive_sql, refusal_reason=None)
         elif multi_statement:
             result = ModelGeneration(
-                sql="SELECT * FROM grades WHERE student_id = 'S001'; DROP TABLE grades",
+                sql=(
+                    "SELECT g.student_id, g.offering_id, g.score FROM academic.grades AS g "
+                    "WHERE g.student_id = 'S01'; DROP TABLE academic.grades"
+                ),
                 refusal_reason=None,
             )
         elif "drop " in question or "忽略" in question:
-            result = ModelGeneration(sql="DROP TABLE students", refusal_reason=None)
+            result = ModelGeneration(sql="DROP TABLE academic.students", refusal_reason=None)
         elif any(token in question for token in ("delete ", "清空", "删除")):
             result = ModelGeneration(
-                sql="DELETE FROM grades WHERE score < 60", refusal_reason=None
+                sql="DELETE FROM academic.grades WHERE score < 60", refusal_reason=None
             )
         elif any(token in question for token in sensitive_tokens):
-            result = ModelGeneration(
-                sql=(
-                    "SELECT s.name, s.national_id, s.phone, g.course_id, g.score "
-                    "FROM students AS s LEFT JOIN grades AS g ON g.student_id = s.student_id"
-                ),
-                refusal_reason=None,
-            )
+            result = ModelGeneration(sql=sensitive_sql, refusal_reason=None)
         else:
-            result = ModelGeneration(
-                sql=(
-                    "SELECT c.name AS course_name, g.score "
-                    "FROM grades AS g JOIN courses AS c ON c.course_id = g.course_id "
-                    "WHERE g.student_id = 'S001' ORDER BY c.name"
-                ),
-                refusal_reason=None,
-            )
+            result = ModelGeneration(sql=normal_sql, refusal_reason=None)
 
         return result.model_dump_json()
 

@@ -13,7 +13,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 start
 
 看到 `Ready: http://127.0.0.1:8000` 后打开 <http://127.0.0.1:8000>。服务在后台运行，终端命令会返回；不需要另开窗口手动执行 `ollama serve`。相同配置下重复 `start` 会显示已运行。
 
-网页选择场景后点击“运行攻防对照”，按顺序比较 baseline 与 hardened。顶部显示模型和版本；第三列“网关未接入”表示 B/C 查询链路还未完成，不是模型故障。
+网页选择场景后点击“运行攻防对照”，按顺序比较 baseline 与 hardened。顶部显示模型和版本；第三列“网关未接入”表示 C 的查询链路还未完成，不是模型故障。
+
+后端已提供查询编排入口 `POST /api/v1/queries`：它先生成候选 SQL，再交给 `SqlGateway`。C 的网关尚未接入，所以当前返回 HTTP 503 + `status=unavailable`，响应中仍包含生成结果；该入口不会执行 SQL。
 
 ```powershell
 # 查看配置、实际运行模型、地址、模型目录和日志目录
@@ -128,3 +130,23 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 start
 | 504 或服务无响应 | 查看 `status` 与 `.runtime/logs/`，保持电脑唤醒；需要时 `stop` → `start` |
 
 新服务已限制单模型驻留、单并发、4096 上下文并关闭云端推理。首次加载通常较慢；超时不能算作模型拒答。数据库接入后的前端输入、网关和结果显示方式见 [A/B/C 联调契约](integration.md)。
+
+## 6. 查看 B 的数据库控制效果（实验室模式）
+
+在 `.env` 同时设置 `SECUREQUERY_DEMO_MODE=true` 和 `SECUREQUERY_LAB_GATEWAY=true`，然后 `run.ps1 stop` → `start`。该模式把候选 SQL 直接交给 B 的只读角色执行，**不是 C 的策略网关**，只用于本地演示。
+
+```powershell
+# 列出固定回放场景
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/lab/scenarios | ConvertTo-Json -Depth 5
+
+# 正常结果：3 行 + db_role=sq_student_s01
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/v1/lab/replay/own_grades | ConvertTo-Json -Depth 6
+
+# 列权限拒绝：error.sqlstate=42501
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/v1/lab/replay/column_denied | ConvertTo-Json -Depth 6
+
+# RLS 静默过滤：executed + 0 行
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/v1/lab/replay/rls_cross_student | ConvertTo-Json -Depth 6
+```
+
+固定回放标记 `candidate_origin=fixed_sql_replay`、`model_invoked=false`，不能算作模型攻击结果。真实 hardened 模型通常会先拒答明显越权请求，所以现场演示 B 的 SQLSTATE 用回放；`/api/v1/queries` 展示正常生成 + B 的真实结果。

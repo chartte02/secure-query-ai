@@ -12,7 +12,10 @@ from app.service import GenerationService
 
 
 @pytest.mark.ollama
-@pytest.mark.skipif(os.getenv("SECUREQUERY_RUN_OLLAMA_TESTS") != "1", reason="explicit local model opt-in required")
+@pytest.mark.skipif(
+    os.getenv("SECUREQUERY_RUN_OLLAMA_TESTS") != "1",
+    reason="explicit local model opt-in required",
+)
 @pytest.mark.parametrize("model", ["qwen2.5-coder:7b", "qwen2.5-coder:3b"])
 def test_local_model_generates_structured_candidate(model):
     async def run():
@@ -22,7 +25,7 @@ def test_local_model_generates_structured_candidate(model):
             await service.startup()
             assert service.provider_info.ready, service.provider_info.detail
             response = await service.generate(str(uuid4()), GenerationRequest(
-                question="查询我低于 60 分的课程名称和分数。", principal_id="student_001",
+                question="查询我低于 60 分的课程名称和分数。", principal_id="student_s01",
                 prompt_profile="hardened", context_profile="clean",
             ))
             assert response.status == "generated"
