@@ -89,13 +89,15 @@ ollama pull qwen2.5-coder:7b
 ollama list
 ```
 
-WSL 手动启动通常使用 `11434`；`.env` 中应保持一致：
+WSL 手动启动默认监听 `11434`。若使用 WSL 手动方式，必须把项目配置改为同一端口：
 
 ```text
 SECUREQUERY_PROVIDER=ollama
 SECUREQUERY_MODEL=qwen2.5-coder:7b
 SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434
 ```
+
+项目根目录的 Windows `run.ps1` 使用独立的项目 Ollama 端口 `11435`；不要在 WSL 手动方式中混用这两个端口。Mock 模式不需要 Ollama，也不会读取模型服务。
 
 推理期间另开终端确认实际 placement：
 
@@ -155,7 +157,11 @@ curl -fsS -X POST http://127.0.0.1:8000/api/v1/queries \
   tests/test_real_gateway.py tests/test_audit_writer.py -q
 .venv/bin/python -m pytest tests/db tests/attacks -q
 .venv/bin/python -m compileall -q app db scripts tests
-.venv/bin/ruff check app scripts tests
+.venv/bin/ruff check \
+  app/sql_policy.py app/real_gateway.py app/audit_writer.py \
+  app/query_service.py app/main.py app/config.py \
+  scripts/verify_ollama_gpu.py \
+  tests/test_sql_policy.py tests/test_real_gateway.py tests/test_audit_writer.py
 git diff --check
 ```
 
@@ -163,6 +169,8 @@ git diff --check
 
 - C 回归为 `26 passed`；
 - 数据库/攻击回归退出码为 0；其中既有无固定候选的评估契约可以跳过；
+- 全套 `pytest -q` 在 Docker 已启动时应退出 0；Ollama 集成测试默认跳过，数据库评估契约中无固定候选项会跳过；
+- Ruff 这里只检查 C 和本阶段改动文件；全仓历史 A 文件仍有已知格式问题，不能把全仓 Ruff 结果写成通过；
 - 正常查询为 `executed + ALLOW`；
 - `api.my_contact` 为 `executed + MASK`；
 - `DELETE`、敏感列、多语句为 `blocked + BLOCK`；
@@ -224,6 +232,6 @@ docker compose --profile lab down -v
 相关入口：
 
 - [`acceptance-report.md`](acceptance-report.md)：完整启动、验收标准和当前结论；
-- [`docs/README.md`](README.md)：文档导航；
+- [`README.md`](README.md)：文档导航；
 - [`feature-file-artifacts.md`](feature-file-artifacts.md)：功能、文件、测试和产物映射；
 - [`integration.md`](integration.md)：A/B/C 接口契约。

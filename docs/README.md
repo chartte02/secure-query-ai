@@ -1,6 +1,6 @@
 # 文档导航
 
-更新日期：2026-11-02。当前阶段是 **A/B 已完成、C 正式 SQL 网关已接入，GPU 仍为 CPU fallback**。文档中的“已实现”以代码和实测为准；设计文档、历史记录和固定 SQL 回放不能替代端到端模型安全证据。
+更新日期：2026-11-02。当前阶段是 **A/B 已完成、C 正式 SQL 网关已接入，GPU 仍为 CPU fallback**。本文件是 `docs/` 的唯一目录入口；文档中的“已实现”以代码和实测为准，设计文档、历史记录和固定 SQL 回放不能替代端到端模型安全证据。
 
 ## 快速入口
 
@@ -11,7 +11,7 @@
 | 查找功能对应的代码、测试和产物 | [feature-file-artifacts.md](feature-file-artifacts.md) |
 | 了解总体架构 | [project-design.md](project-design.md) |
 | 查看三人分工 | [team-division.md](team-division.md) |
-| 查看本次 A/B/C 验证结果 | [member-ab-verification.md](member-ab-verification.md)、[acceptance-report.md](acceptance-report.md) |
+| 查看本次 A/B/C 验证结果 | [acceptance-report.md](acceptance-report.md)、[c-gateway-verification.md](c-gateway-verification.md) |
 | 在 WSL 中启动和排障 | [wsl-guide.md](wsl-guide.md) |
 
 ## 按成员查找
@@ -53,12 +53,38 @@
 | 项目实施与实验计划 | [research/04-project-plan.md](research/04-project-plan.md) |
 | 研究目录和来源清单 | [research/README.md](research/README.md)、[research/source-inventory.json](research/source-inventory.json) |
 
+## 按文档用途查找
+
+| 用途 | 文档 |
+| --- | --- |
+| 项目设计与研究计划 | [project-design.md](project-design.md)、[research/04-project-plan.md](research/04-project-plan.md) |
+| 接口与数据库契约 | [integration.md](integration.md)、[database-contract.md](database-contract.md)、[data-dictionary.md](data-dictionary.md) |
+| 实际验证与验收 | [acceptance-report.md](acceptance-report.md)、[status.md](status.md)、[c-gateway-verification.md](c-gateway-verification.md)、[database-validation.md](database-validation.md)、[member-b-verification.md](member-b-verification.md) |
+| 使用、启动与模型评估 | [usage-guide.md](usage-guide.md)、[wsl-guide.md](wsl-guide.md)、[local-model-evaluation.md](local-model-evaluation.md)、[gpu-inference.md](gpu-inference.md) |
+| 攻击、实验与写权限演示 | [attack-cases.md](attack-cases.md)、[write-lab-experiment.md](write-lab-experiment.md) |
+| 团队协作与交接 | [team-division.md](team-division.md)、[team-bc-handoff.md](team-bc-handoff.md)、[member-ab-verification.md](member-ab-verification.md) |
+| C 实现阶段计划 | [superpowers/plans/2026-11-02-c-gateway-gpu-plan.md](superpowers/plans/2026-11-02-c-gateway-gpu-plan.md) |
+
 ## 环境与历史资料
 
 - [wsl-guide.md](wsl-guide.md)：WSL 环境、Docker、Ollama、端口和常见故障的启动记录；
 - [archive/](archive/)：阶段性旧方案和成员个人记录，只用于追溯，不作为当前实现状态；
 - [member-ab-verification.md](member-ab-verification.md)：A/B 合并阶段的历史验证记录，当前实测以 [acceptance-report.md](acceptance-report.md) 和 [c-gateway-verification.md](c-gateway-verification.md) 为准；
 - `temp/`：已过时但有追溯价值的阶段性文档，不作为当前启动或验收入口。
+
+### 历史归档
+
+以下文档只用于追溯旧环境、旧基线或旧需求，不应作为当前命令依据：
+
+- [archive/README.md](archive/README.md)：归档目录说明；
+- [archive/local-deployment.md](archive/local-deployment.md)：旧本地部署方式；
+- [archive/member-a-baseline.md](archive/member-a-baseline.md)：旧 A 基线；
+- [archive/research-and-requirements-review.md](archive/research-and-requirements-review.md)：旧需求审阅。
+
+### 临时资料
+
+- [temp/member-a-ai-sql-server-guide.md](temp/member-a-ai-sql-server-guide.md)：C 接入前的 A 单人联调指南，保留作历史参考；
+- 不要从 `archive/` 或 `temp/` 复制当前启动命令，优先使用 [wsl-guide.md](wsl-guide.md)。
 
 ## 代码与产物索引
 

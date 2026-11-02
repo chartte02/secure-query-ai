@@ -4,6 +4,8 @@
 
 当前状态：A/B 已同步到 `campus_lab_v1`，C 的正式网关、审计和安全查询结果面板已接入。默认仍返回 `503 unavailable`，必须显式设置 `SECUREQUERY_FORMAL_GATEWAY=true` 才连接 hardened 数据库。完整进度、接口字段与验收结果见 [docs/status.md](docs/status.md)。
 
+详细文档统一从 [`docs/README.md`](docs/README.md) 查找；它是 `docs/` 目录的权威导航，包含启动、验收、架构、分工、攻击案例、研究资料、历史归档和临时文档说明。
+
 ## 目录与阅读入口
 
 | 内容 | 入口 |
@@ -12,7 +14,8 @@
 | WSL 环境下启动与概览 | [docs/wsl-guide.md](docs/wsl-guide.md) |
 | 总体设计与三人分工 | [docs/project-design.md](docs/project-design.md)、[docs/team-division.md](docs/team-division.md) |
 | 成员 A：AI SQL 服务 | [docs/usage-guide.md](docs/usage-guide.md)、[docs/local-model-evaluation.md](docs/local-model-evaluation.md)、[docs/integration.md](docs/integration.md) |
-| 成员 B：数据库与攻击 | [docs/README.md](docs/README.md)、[docs/database-contract.md](docs/database-contract.md)、[docs/database-validation.md](docs/database-validation.md) |
+| 全部文档目录 | [docs/README.md](docs/README.md) |
+| 成员 B：数据库与攻击 | [docs/database-contract.md](docs/database-contract.md)、[docs/database-validation.md](docs/database-validation.md) |
 | 成员 B：数据字典与攻击案例卡 | [docs/data-dictionary.md](docs/data-dictionary.md)、[docs/attack-cases.md](docs/attack-cases.md) |
 | 成员 B：应用背景与开源调研 | [docs/research/README.md](docs/research/README.md) |
 | A/B 分支合并与验证记录（成员 C） | [docs/member-ab-verification.md](docs/member-ab-verification.md) |
