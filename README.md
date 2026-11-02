@@ -9,6 +9,8 @@
 | 内容 | 入口 |
 | --- | --- |
 | 当前进度、接口与剩余工作 | [docs/status.md](docs/status.md) |
+=======
+| WSL 环境下启动与概览 | [docs/wsl-guide.md](docs/wsl-guide.md) |
 | 总体设计与三人分工 | [docs/project-design.md](docs/project-design.md)、[docs/team-division.md](docs/team-division.md) |
 | 成员 A：AI SQL 服务 | [docs/usage-guide.md](docs/usage-guide.md)、[docs/local-model-evaluation.md](docs/local-model-evaluation.md)、[docs/integration.md](docs/integration.md) |
 | 成员 B：数据库与攻击 | [docs/README.md](docs/README.md)、[docs/database-contract.md](docs/database-contract.md)、[docs/database-validation.md](docs/database-validation.md) |
