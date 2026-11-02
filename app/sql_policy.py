@@ -108,7 +108,10 @@ def authorize_candidate(handoff: GatewayHandoff) -> PolicyDecision:
         return _blocked("TABLE_DENIED", parsed)
     if any(table not in _TABLE_COLUMNS for table in parsed.tables):
         return _blocked("TABLE_DENIED", parsed)
-    if any(isinstance(node, exp.Star) for node in statement.walk()):
+    if any(
+        isinstance(node, exp.Star) and not isinstance(node.parent, exp.Count)
+        for node in statement.walk()
+    ):
         return _blocked("SELECT_STAR_DENIED", parsed)
 
     aliases = _table_aliases(statement)

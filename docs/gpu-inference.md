@@ -20,13 +20,13 @@
 在一个终端启动或保持 Ollama 服务，在另一个终端运行：
 
 ```bash
-ollama run qwen2.5-coder:7b
+OLLAMA_HOST=127.0.0.1:11435 ollama run qwen2.5-coder:7b
 ```
 
 推理期间另开终端检查：
 
 ```bash
-ollama ps
+OLLAMA_HOST=127.0.0.1:11435 ollama ps
 nvidia-smi
 ```
 
@@ -34,6 +34,7 @@ nvidia-smi
 
 ```bash
 .venv/bin/python scripts/verify_ollama_gpu.py --smoke \
+  --host 127.0.0.1:11435 \
   --output /tmp/securequery-ollama-gpu-evidence.json
 ```
 
@@ -52,7 +53,7 @@ nvidia-smi
 ```text
 SECUREQUERY_PROVIDER=ollama
 SECUREQUERY_MODEL=qwen2.5-coder:7b
-SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434
+SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11435
 SECUREQUERY_DEMO_MODE=true
 ```
 

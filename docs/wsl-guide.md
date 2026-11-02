@@ -81,30 +81,39 @@ docker compose --profile lab ps
 
 ### 本地 Ollama 模式
 
-另开一个 WSL 终端：
+另开一个 WSL 终端，推荐让项目 Ollama 独占 `11435`，与系统默认 `11434` 服务隔离：
 
 ```bash
+export OLLAMA_HOST=127.0.0.1:11435
 ollama serve
-ollama pull qwen2.5-coder:7b
-ollama list
 ```
 
-WSL 手动启动默认监听 `11434`。若使用 WSL 手动方式，必须把项目配置改为同一端口：
+再开第三个 WSL 终端，使用同一个端口拉取和检查模型：
+
+```bash
+export OLLAMA_HOST=127.0.0.1:11435
+ollama pull qwen2.5-coder:7b
+ollama list
+curl -fsS http://127.0.0.1:11435/api/tags
+```
+
+API 终端也必须配置同一个地址：
 
 ```text
 SECUREQUERY_PROVIDER=ollama
 SECUREQUERY_MODEL=qwen2.5-coder:7b
-SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434
+SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11435
 ```
 
-项目根目录的 Windows `run.ps1` 使用独立的项目 Ollama 端口 `11435`；不要在 WSL 手动方式中混用这两个端口。Mock 模式不需要 Ollama，也不会读取模型服务。
+如果已经有系统 Ollama 在 `11434` 运行，也可以不启动第二个服务，改为把 `SECUREQUERY_OLLAMA_BASE_URL` 设置为 `http://127.0.0.1:11434`，并先用 `curl .../api/tags` 确认模型在同一个服务中。项目根目录的 Windows `run.ps1` 使用独立的项目 Ollama 端口 `11435`；不要把两个服务的模型、端口和状态混用。Mock 模式不需要 Ollama，也不会读取模型服务。
 
 推理期间另开终端确认实际 placement：
 
 ```bash
-ollama ps
+OLLAMA_HOST=127.0.0.1:11435 ollama ps
 nvidia-smi
 .venv/bin/python scripts/verify_ollama_gpu.py --smoke \
+  --host 127.0.0.1:11435 \
   --output /tmp/securequery-ollama-gpu-evidence.json
 ```
 
@@ -122,7 +131,26 @@ export SECUREQUERY_FORMAL_GATEWAY=true
 .venv/bin/python -m app
 ```
 
-真实 Ollama 时把 `SECUREQUERY_PROVIDER` 改为 `ollama`，并确保 `SECUREQUERY_OLLAMA_BASE_URL` 与 Ollama 服务一致。应用只绑定 `127.0.0.1:8000`，前端由同一个 FastAPI 服务提供，不需要单独启动 Node 或静态服务器。
+使用本地 Ollama 时，不要只修改 Provider；必须同时设置模型和同一个端口：
+
+```bash
+export SECUREQUERY_PROVIDER=ollama
+export SECUREQUERY_MODEL=qwen2.5-coder:7b
+export SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11435
+export SECUREQUERY_DEMO_MODE=true
+export SECUREQUERY_LAB_GATEWAY=false
+export SECUREQUERY_FORMAL_GATEWAY=true
+.venv/bin/python -m app
+```
+
+启动 API 前先验证 Ollama，否则页面出现 `OLLAMA · DEGRADED` 和
+`Local model is unavailable.` 是预期结果：
+
+```bash
+curl -fsS http://127.0.0.1:11435/api/tags
+```
+
+应用只绑定 `127.0.0.1:8000`，前端由同一个 FastAPI 服务提供，不需要单独启动 Node 或静态服务器。
 
 浏览器打开：
 

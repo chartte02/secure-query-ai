@@ -36,6 +36,18 @@ def test_allows_single_read_query_with_known_objects() -> None:
     assert decision.normalized_sql
 
 
+def test_allows_count_star_without_allowing_select_star() -> None:
+    decision = authorize_candidate(
+        handoff(
+            "SELECT COUNT(*) AS grade_count "
+            "FROM academic.grades WHERE student_id = 'S01'"
+        )
+    )
+
+    assert decision.decision == "ALLOW"
+    assert decision.reason_code == "POLICY_ALLOW"
+
+
 @pytest.mark.parametrize(
     ("sql", "reason_code"),
     [

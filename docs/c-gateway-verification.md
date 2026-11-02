@@ -23,6 +23,14 @@ git diff --check
 
 结果：C 单元/前端回归 `26 passed`；数据库与攻击回归命令退出码为 0，6 个评估契约样例按既有规则跳过；编译、Ruff 和 diff 检查通过。
 
+策略回归特别核对：`SELECT COUNT(*) ...` 的 `exp.Star` 只表示聚合函数参数，
+不会被误判为结果列通配符；该查询返回 `ALLOW/POLICY_ALLOW`。独立的
+`SELECT * FROM ...` 仍返回 `BLOCK/SELECT_STAR_DENIED`。
+
+补充 live 验证：在 hardened PostgreSQL 中以 `student_s01` 执行
+`COUNT(*)` 返回 `ALLOW/POLICY_ALLOW`、`grade_count=3`，角色为
+`sq_student_s01`，结果未截断。
+
 ## Docker Live 结果
 
 启用 `SECUREQUERY_FORMAL_GATEWAY=true` 后，通过 ASGI 客户端向 `/api/v1/queries` 发送固定合成 Provider：
