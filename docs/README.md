@@ -33,6 +33,8 @@
 | 权限验证结果 | [database-validation.md](database-validation.md) |
 | 三类攻击的前提和影响 | [attack-cases.md](attack-cases.md) |
 | 一次性写权限实验 | [write-lab-experiment.md](write-lab-experiment.md) |
+| **E0–E4 正式实验结果表（720+180 次）** | [experiment-results.md](experiment-results.md) |
+| **Windows 原生 GPU 环境验证（对照 WSL 卡点）** | [windows-gpu-verification.md](windows-gpu-verification.md) |
 
 ### 成员 C：安全网关与 Pre
 
