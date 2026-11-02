@@ -44,6 +44,7 @@
 | C 当前验收和剩余工作 | [status.md](status.md)、[acceptance-report.md](acceptance-report.md)、[gpu-inference.md](gpu-inference.md) |
 | C 详细命令与实测结果 | [c-gateway-verification.md](c-gateway-verification.md) |
 | 三人协作、Pre 工作量和交付物 | [team-division.md](team-division.md) |
+| Pre 汇报材料与答辩口径 | [pre-presentation.md](pre-presentation.md) |
 
 ## 按研究内容查找
 
