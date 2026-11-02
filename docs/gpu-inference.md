@@ -46,7 +46,70 @@ nvidia-smi
 
 本次脚本结果：`gpu_verified=false`、`cpu_fallback=true`。当前模型评估不能标记为 GPU-backed。
 
-## 3. 项目连接配置
+## 3. 2026-11-02 前端前置部署诊断
+
+本次先绕过前端和 FastAPI，直接在 WSL 启动临时 Ollama 11435，
+只发送最小 `READY` 请求。
+
+服务健康检查正常：
+
+```bash
+curl -i --max-time 10 http://127.0.0.1:11435/api/version
+# HTTP 200，Ollama 0.24.0
+
+curl --max-time 10 http://127.0.0.1:11435/api/tags
+# qwen2.5-coder:7b 已安装，digest=dae161e27b0e...
+```
+
+但 runner 日志明确显示：
+
+```text
+inference compute id=cpu library=cpu
+vram-based default context total_vram="0 B"
+runner.vram="0 B"
+```
+
+最小请求结果：
+
+```bash
+/usr/bin/time -f 'elapsed=%E exit=%x' curl -sS --max-time 45 \
+  http://127.0.0.1:11435/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"qwen2.5-coder:7b","stream":false,
+       "messages":[{"role":"user","content":"Return only the word READY."}],
+       "options":{"temperature":0,"num_predict":16,"num_ctx":1024}}'
+# HTTP 200，elapsed=0:24.38
+# load_duration=9.91s，prompt_eval_duration=13.93s
+```
+
+因此 API 服务“可访问”不等于模型请求可在 10 秒内完成。当前 504 的直接
+原因是 7B 模型在 CPU fallback 上运行，而不是前端路由或 SQL 网关。
+
+另发现本机 Ollama 安装的动态库路径需要核对：
+
+```bash
+ldd /usr/local/lib/ollama/cuda_v12/libggml-cuda.so \
+  | rg 'not found|ggml|cuda|cublas'
+# 未补充路径时：libggml-base.so.0 => not found
+
+find /usr/local /usr/lib -name 'libggml-base.so*' 2>/dev/null
+# /usr/lib/ollama/libggml-base.so.0
+```
+
+即 `/usr/local/bin/ollama`、`/usr/local/lib/ollama/cuda_v12` 和
+`/usr/lib/ollama` 不是同一安装布局。即使临时补充
+`LD_LIBRARY_PATH=/usr/lib/ollama:...` 并显式设置
+`OLLAMA_LLM_LIBRARY=cuda_v12`，runner 仍报告 `total_vram=0 B`；
+这说明还需要修复 Ollama/WSL GPU 运行环境，不能只修改项目超时。
+
+在以下条件满足前不要接入前端：
+
+1. `ollama serve` 日志出现 CUDA 设备而非 `inference compute id=cpu`；
+2. `ollama ps` 显示 `GPU` 或 CPU/GPU 混合；
+3. `nvidia-smi` 能观察到 Ollama compute 进程和显存占用；
+4. 最小 `READY` 请求和项目完整 Prompt 分别完成一次，记录耗时后再启动 API。
+
+## 4. 项目连接配置
 
 项目只通过本地 Ollama HTTP 接口调用模型，不需要在 Python 中安装 CUDA 或 PyTorch。确认 GPU 生效后，将 `.env` 设置为：
 
@@ -59,7 +122,7 @@ SECUREQUERY_DEMO_MODE=true
 
 如果 Windows 脚本启动项目专用 Ollama，则使用脚本打印的专用端口，不能同时把服务地址写成另一个端口。
 
-## 4. GPU 未生效时排查
+## 5. GPU 未生效时排查
 
 1. 确认 `nvidia-smi` 能识别 GPU 和驱动。
 2. 确认 Ollama 服务与当前终端使用的是同一个用户和同一个端口。
