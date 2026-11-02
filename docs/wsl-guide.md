@@ -1,174 +1,229 @@
-# SecureQuery AI：项目概览与 WSL 启动指南
+# SecureQuery AI：WSL 完整启动与验收指南
 
-日期：2026-10-31。面向在 **WSL（Linux）环境** 下克隆并运行本仓库的成员。内容基于 2026-10-31 的实测验证，Windows PowerShell 的 `run.ps1` 在 WSL bash 下不可用，本指南给出等价命令。
+更新日期：2026-11-02。本文是 WSL 下的主启动入口；功能状态看 [`status.md`](status.md)，C 的实测命令看 [`c-gateway-verification.md`](c-gateway-verification.md)，不要在多份文档重复维护同一组结果。
 
-## 1. 项目概览
+## 1. 运行模式
 
-SecureQuery AI 研究“通过自然语言让大模型查询数据库”引入的安全风险，用合成校园教务数据做攻防演示，比较无防御、仅提示词防御、提示词加 SQL 安全网关三种方案。核心链路：
-
-```text
-用户身份 + 自然语言
-      ↓
-轻量 Web 前端 (frontend/)
-      ↓
-AI SQL 服务 (app/)  —— Ollama / Mock 生成候选 SQL
-      ↓
-SQL 安全网关 (成员 C，待实现) —— 解析、授权、脱敏、审计
-      ↓
-PostgreSQL (db/)  —— 角色、RLS、只读事务、合成数据
-```
-
-三人分工与交付现状：
-
-| 成员 | 负责 | 状态（2026-10-31） |
-| --- | --- | --- |
-| A（`hongcl`） | AI SQL 服务、提示词、前端、模型评估 | ✅ 已合入，服务可跑，64 passed + 2 skipped |
-| B（`feat/database-security-lab`） | 数据库、角色/权限、合成数据、攻击用例 | ✅ 已合入，静态校验通过，完整回归需 Docker |
-| C（`main`，本指南作者） | SQL 网关、执行编排、评估、Pre 汇报 | ⏳ 待实现 |
-
-## 2. 目录结构
+完整链路为：
 
 ```text
-app/        A：FastAPI、提示词、Ollama/Mock Provider、诊断
-frontend/   A：攻防对照页（index.html / app.js / styles.css）
-db/         B：表结构、角色、RLS、种子数据、可信接口
-scripts/    A：evaluate.py；B：init_db.py / reset_db.py / verify_db_permissions.py / collect_experiment_evidence.py
-tests/      A：API/Provider/提示词/前端安全；B：db/ 与 attacks/ 回归
-docs/       设计、分工、接入契约、验证记录、调研
-compose.yaml  B：三个独立 PostgreSQL 实例
+浏览器前端 → FastAPI/A 生成服务 → C RealGateway → hardened PostgreSQL
+                                      ↓
+                                audit.events
 ```
 
-## 3. WSL 环境准备
+项目身份和 Schema 固定为 `student_s01`、`student_s02`、`teacher_t01` 与 `campus_lab_v1`。`lab_direct` 只用于 B 的固定 SQL 回放，不是正式安全网关。
 
-前置：Python 3.11+（本机为 miniconda 的 Python 3.13.9）。数据库部分需要 Docker（见第 6 节）。
+## 2. WSL 前置条件
+
+- WSL2 Linux 发行版，建议 Ubuntu；
+- Windows Docker Desktop 已启动，并在 Docker Desktop 的 WSL Integration 中启用当前发行版；
+- WSL 内可执行 `docker`、`python3`；真实模型另需 `ollama`；
+- 项目位于 WSL 可访问路径，例如 `/home/chartte/school/SecureQuery_AI`。
+
+```bash
+cd /home/chartte/school/SecureQuery_AI
+docker version
+python3 --version
+```
+
+若 `docker version` 报 `permission denied`，先启动 Docker Desktop；不要自行修改项目代码绕过 Docker。
+
+## 3. 安装依赖
+
+数据库初始化前不要直接把 `.env.example` 复制成 `.env`，其中的 `SQ_*` 是占位符。让初始化脚本生成随机本地凭据：
 
 ```bash
 cd /home/chartte/school/SecureQuery_AI
 python3 -m venv .venv
 .venv/bin/python -m pip install -U pip
-
-# 成员 A：运行时依赖 + pytest/ruff（不装数据库驱动，符合 A 的安全边界）
 .venv/bin/python -m pip install -e ".[dev]"
-
-# 成员 B：数据库驱动 psycopg / python-dotenv 等（跑 db/ 相关测试才需要）
 .venv/bin/python -m pip install -r requirements-dev.lock
+.venv/bin/python -m pip install -r requirements-database.lock
 ```
 
-两条安装命令分别对应 A、B 两套依赖，二者可并存（这是有意设计：A 的运行时不得携带数据库驱动，见 `tests/test_frontend_security.py`）。
+`requirements-dev.lock` 提供 B 的测试工具；`requirements-database.lock` 是 C 正式网关的显式数据库依赖。A-only 安装仍不把数据库驱动放入主运行依赖。
 
-## 4. 成员 A：启动 AI SQL 服务
-
-A 的服务默认用 Mock Provider，**不连数据库、不需要 Ollama**，只生成候选 SQL，绝不执行。演示模式需显式开启。
+## 4. 初始化并启动 PostgreSQL
 
 ```bash
-# 准备配置（.env 缺失时用 .env.example 的演示默认值；.env 已被 Git 忽略）
-cp .env.example .env          # 或手动 export 下面两个变量
-
-# 启动（只监听 127.0.0.1:8000）
-SECUREQUERY_PROVIDER=mock SECUREQUERY_DEMO_MODE=true .venv/bin/python -m app
+.venv/bin/python scripts/init_db.py --all
+docker compose --profile lab ps
 ```
 
-等价写法：`uvicorn app.main:app --host 127.0.0.1 --port 8000`（`app/__main__.py` 内部就是这么做的）。
+预期三个服务均为 `healthy`：
 
-验证（实测 2026-10-31 通过）：
+| 服务 | 端口 | 用途 |
+| --- | ---: | --- |
+| `hardened` | `55432` | 正式 C 网关，RLS、列权限、只读 |
+| `baseline` | `55433` | 宽权限对照 |
+| `write_lab` | `55434` | 隔离的写操作实验 |
+
+只需要正式主库时可以使用：
 
 ```bash
-curl http://127.0.0.1:8000/api/v1/health      # {"status":"ready","provider":{...mock...},...}
-curl http://127.0.0.1:8000/                   # 200，前端页面
-curl http://127.0.0.1:8000/api/v1/demo/catalog
-curl -X POST http://127.0.0.1:8000/api/v1/generations \
+.venv/bin/python scripts/init_db.py --profile hardened
+```
+
+若数据库已经存在且只想重置合成数据：
+
+```bash
+.venv/bin/python scripts/reset_db.py --profile hardened
+.venv/bin/python scripts/reset_db.py --profile baseline
+.venv/bin/python scripts/reset_db.py --profile write_lab
+```
+
+## 5. 启动 Ollama
+
+### Mock 模式
+
+默认 Mock 不需要 Ollama，可直接跳到下一节。完整数据库链路仍需要第 4 节的 PostgreSQL。
+
+### 本地 Ollama 模式
+
+另开一个 WSL 终端：
+
+```bash
+ollama serve
+ollama pull qwen2.5-coder:7b
+ollama list
+```
+
+WSL 手动启动通常使用 `11434`；`.env` 中应保持一致：
+
+```text
+SECUREQUERY_PROVIDER=ollama
+SECUREQUERY_MODEL=qwen2.5-coder:7b
+SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434
+```
+
+推理期间另开终端确认实际 placement：
+
+```bash
+ollama ps
+nvidia-smi
+.venv/bin/python scripts/verify_ollama_gpu.py --smoke \
+  --output /tmp/securequery-ollama-gpu-evidence.json
+```
+
+必须以 `ollama ps` 和 `nvidia-smi` 共同证明 GPU；本机 2026-11-02 实测为 `100% CPU`，应记录为 CPU fallback，不能仅因检测到 RTX 4060 就宣称 GPU 推理。
+
+## 6. 启动完整应用和前端
+
+在 API 终端执行：
+
+```bash
+export SECUREQUERY_PROVIDER=mock
+export SECUREQUERY_DEMO_MODE=true
+export SECUREQUERY_LAB_GATEWAY=false
+export SECUREQUERY_FORMAL_GATEWAY=true
+.venv/bin/python -m app
+```
+
+真实 Ollama 时把 `SECUREQUERY_PROVIDER` 改为 `ollama`，并确保 `SECUREQUERY_OLLAMA_BASE_URL` 与 Ollama 服务一致。应用只绑定 `127.0.0.1:8000`，前端由同一个 FastAPI 服务提供，不需要单独启动 Node 或静态服务器。
+
+浏览器打开：
+
+```text
+http://127.0.0.1:8000/
+```
+
+页面操作顺序：
+
+1. 选择 `normal_grade` 或其他场景；
+2. 点击“运行攻防对照”；
+3. 查看 baseline/hardened 候选；
+4. 有 hardened 候选时，前端只提交自然语言、身份和上下文到 `/api/v1/queries`；
+5. 查看 C 的 `ALLOW/MASK/BLOCK`、原因、结果、RLS 空结果、截断信息和审计 ID。
+
+## 7. 启动后验收
+
+```bash
+curl -fsS http://127.0.0.1:8000/api/v1/health
+curl -fsS http://127.0.0.1:8000/
+curl -fsS http://127.0.0.1:8000/api/v1/demo/catalog
+curl -fsS -X POST http://127.0.0.1:8000/api/v1/queries \
   -H 'Content-Type: application/json' \
-  -d '{"question":"查询我在《数据库》这门课的成绩","principal_id":"student_001","prompt_profile":"hardened","context_profile":"clean"}'
+  -d '{"question":"查询我的成绩","principal_id":"student_s01","context_profile":"clean"}'
 ```
 
-关键接口见 [usage-guide.md](usage-guide.md)。演示身份为 `student_001` / `teacher_001` / `admin_demo`。
-
-### 使用真实 Ollama 模型（可选）
-
-WSL 已装 Ollama 客户端（0.24.0），但无运行中的服务与模型。要启用真实模型：
+正式网关的命令级回归：
 
 ```bash
-ollama serve                              # 默认端口 11434
-ollama pull qwen2.5-coder:7b              # 主模型（或 3b）
-# 修改 .env：
-#   SECUREQUERY_PROVIDER=ollama
-#   SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434   # 注意：run.ps1 用 11435，手动 serve 用 11434
-#   SECUREQUERY_MODEL=qwen2.5-coder:7b
+.venv/bin/python -m pytest \
+  tests/test_frontend_security.py tests/test_sql_policy.py \
+  tests/test_real_gateway.py tests/test_audit_writer.py -q
+.venv/bin/python -m pytest tests/db tests/attacks -q
+.venv/bin/python -m compileall -q app db scripts tests
+.venv/bin/ruff check app scripts tests
+git diff --check
 ```
 
-`run.ps1` 在 Windows 下会启动项目专用 Ollama（端口 11435）；在 WSL 手动 `ollama serve` 时用默认 11434，务必同步改 `SECUREQUERY_OLLAMA_BASE_URL`。
+预期结果：
 
-## 5. 成员 A：运行测试
+- C 回归为 `26 passed`；
+- 数据库/攻击回归退出码为 0；其中既有无固定候选的评估契约可以跳过；
+- 正常查询为 `executed + ALLOW`；
+- `api.my_contact` 为 `executed + MASK`；
+- `DELETE`、敏感列、多语句为 `blocked + BLOCK`；
+- 跨学生查询由 RLS 返回 `executed + row_count=0`；
+- 审计记录只保存决策、原因、角色和 `sql_digest`，不保存原始 SQL。
+
+完整 C 结果不要重复抄写到本文，查看 [`c-gateway-verification.md`](c-gateway-verification.md)。
+
+## 8. B 固定回放和模型评估
+
+固定回放必须明确是 `lab_direct`，不算模型攻击结果：
 
 ```bash
-# Mock 测试（不依赖 Ollama / 数据库）
-.venv/bin/python -m pytest tests/test_api.py tests/test_config.py tests/test_diagnostics.py \
-  tests/test_evaluation.py tests/test_frontend_security.py tests/test_prompts.py \
-  tests/test_providers.py tests/attacks/test_generation_attacks.py
-
-# 真实 Ollama 集成（需先启动模型并显式开启）
-SECUREQUERY_RUN_OLLAMA_TESTS=1 .venv/bin/python -m pytest tests/test_ollama_integration.py
+export SECUREQUERY_LAB_GATEWAY=true
+export SECUREQUERY_FORMAL_GATEWAY=false
+.venv/bin/python -m pytest tests/test_query_lab.py -q
 ```
 
-实测 2026-10-31：Mock 测试 **64 passed**；Ollama 集成 **2 skipped**（无模型服务，符合预期）。
-
-## 6. 成员 B：数据库与攻击
-
-B 的数据库需要 **Docker + PostgreSQL**。本机 WSL 未装 Docker（`docker` 命令不存在），因此完整回归需在带 Docker Desktop 的 Windows 侧（或 Linux Docker）执行。在具备 Docker 的环境：
+模型生成评估不执行 SQL：
 
 ```bash
-.venv/bin/python -m pip install -r requirements-dev.lock
-.venv/bin/python scripts/init_db.py --all      # 生成 .env 真实随机密钥，初始化三个实例
-.venv/bin/python -m pytest tests/db tests/attacks -q   # B 记录为 71 passed
+.venv/bin/python scripts/evaluate.py \
+  --provider mock --model qwen2.5-coder:7b
+# Ollama 已可用时再改为 --provider ollama
 ```
 
-三个实例固定绑定本机端口：
+评估 JSON 位于 `artifacts/experiments/`，应区分 provider error、模型拒答、候选 SQL 和网关实测，不把模型拒答率当成安全结论。
 
-| 环境 | 端口 | 用途 |
-| --- | --- | --- |
-| hardened | 55432 | 默认；RLS 本人/教师所授班；禁止原始敏感列 |
-| baseline | 55433 | 故意宽读取的对照 |
-| write_lab | 55434 | 一次性成绩 DML 实验 |
+## 9. 停止和排障
 
-常用命令：`scripts/reset_db.py`（重置）、`scripts/verify_db_permissions.py`（权限校验）、`scripts/collect_experiment_evidence.py`（采集固定 SQL 证据）。A/C 接入契约见 [database-contract.md](database-contract.md)。
-
-### 本机（无 Docker）如何校验 B
-
-本机验证过以下等价项（见 [member-ab-verification.md](member-ab-verification.md)）：
+停止 API：在 API 终端按 `Ctrl-C`。停止数据库但保留数据卷：
 
 ```bash
-.venv/bin/ruff check db scripts/init_db.py scripts/reset_db.py scripts/verify_db_permissions.py scripts/collect_experiment_evidence.py   # 0 问题
-.venv/bin/python -m pytest tests/test_contract.py            # 2 passed（无需数据库）
-.venv/bin/python -m pytest tests/db tests/attacks tests/test_contract.py --collect-only   # 71 项可收集
+docker compose --profile lab stop
 ```
 
-## 7. 成员 C：待实现
+删除容器但保留卷：
 
-SQL 网关（语句类型/表/字段/用户策略检查、危险操作拦截、脱敏、审计日志）、统一执行入口 `POST /api/v1/queries`、实验评估与 Pre 汇报。前端目前 `deployment` 里 `gateway_connected` 与 `database_connected` 均为 `false`。
+```bash
+docker compose --profile lab down
+```
 
-## 8. WSL 注意事项（实测踩坑）
+仅在明确要重建实验数据时才删除卷：
 
-1. **venv 损坏**：本机曾出现 `.venv/bin/python` 变成 0 字节普通文件（原本是符号链接），报 `Permission denied`。解决：删除重建 `rm -rf .venv && python3 -m venv .venv` 后重装依赖。若遇到 `.venv/bin/python` 无法执行，先重建。
+```bash
+docker compose --profile lab down -v
+.venv/bin/python scripts/init_db.py --all
+```
 
-2. **`:Zone.Identifier` 文件**：Windows 从网上下载/复制文件后，会在 WSL 里物化出大量 `文件名:Zone.Identifier` 的 ADS 垃圾文件（本机观察到 91 个，全被 `git status` 显示为未跟踪）。清理并防止提交：
+常见问题：
 
-   ```bash
-   find . -name '*:Zone.Identifier' -delete          # 清理
-   # 建议在 .gitignore 中追加一行：
-   # *:Zone.Identifier
-   ```
+- `SQ_*` 占位符错误：删除本地 `.env` 后重新运行 `scripts/init_db.py --all`，再补 `SECUREQUERY_*` 配置；
+- Docker socket 无权限：启动 Docker Desktop 并确认 WSL Integration；
+- API 返回 `503 unavailable`：检查 `SECUREQUERY_FORMAL_GATEWAY=true`、`requirements-database.lock` 和 hardened 容器；
+- Ollama 超时：先用 Mock 验证网关，再降低模型规模或增加本地超时；不能把超时报告为安全通过；
+- `ollama ps` 为 `100% CPU`：记录为 CPU fallback，按 [`gpu-inference.md`](gpu-inference.md) 排查；
+- WSL 中出现 `*:Zone.Identifier`：这是 Windows ADS 垃圾文件，清理前先确认不是项目文件。
 
-3. **无 Docker / psql / Ollama 服务**：B 的数据库回归、真实模型集成在本机都跑不了；请回到 Windows 侧或另备环境执行（见第 5、6 节）。
+相关入口：
 
-4. **A、B 共用同一个 `.env`**：A 读 `SECUREQUERY_*`，B 读 `SQ_*`。B 的 `scripts/init_db.py` 只在 `.env` 缺失时生成真实随机 `SQ_*` 密钥；若已 `cp .env.example .env`（含 `SQ_*` 占位符），B 的 `Settings.load()` 会拒绝运行（`Replace .env.example placeholders ...`）。**先跑 B 的 init_db.py 生成真实密钥，再补 A 的 `SECUREQUERY_DEMO_MODE=true` 等项**，二者可并存。
-
-5. **A 与 B 的 Schema/身份命名不一致**（C 对接时要统一）：A 的演示用 `campus_v1`，表名 `grades`/`courses`，身份 `student_001`/`teacher_001`；B 的真实库用 `academic.grades`/`academic.courses`，身份 `student_s01`/`teacher_t01`。生成 SQL 必须由 C 的网关按 B 的真实 Schema 授权后执行，不能直接拿 A 的示例 SQL 查库。
-
-6. **`run.ps1` 是 Windows PowerShell 脚本**，在 WSL bash 下不可直接用；等价入口是 `python -m app` 与上面的 pytest 命令。
-
-## 9. 相关文档
-
-- 总体设计与分工：[project-design.md](project-design.md)、[team-division.md](team-division.md)
-- A 的使用教程与模型评估：[usage-guide.md](usage-guide.md)、[local-model-evaluation.md](local-model-evaluation.md)
-- B 的接入契约与验证：[database-contract.md](database-contract.md)、[database-validation.md](database-validation.md)
-- A/B 合并验证记录：[member-ab-verification.md](member-ab-verification.md)
+- [`acceptance-report.md`](acceptance-report.md)：完整启动、验收标准和当前结论；
+- [`docs/README.md`](README.md)：文档导航；
+- [`feature-file-artifacts.md`](feature-file-artifacts.md)：功能、文件、测试和产物映射；
+- [`integration.md`](integration.md)：A/B/C 接口契约。

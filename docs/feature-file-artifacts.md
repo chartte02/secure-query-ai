@@ -1,6 +1,6 @@
 # 功能、文件、测试与产物映射
 
-更新日期：2026-11-02。本文回答“某个功能在哪里实现、如何验证、会产生什么证据”。状态分为：`已实现`、`实验室演示`、`待 C 实现`、`文档/计划`。
+更新日期：2026-11-02。本文回答“某个功能在哪里实现、如何验证、会产生什么证据”。状态分为：`已实现`、`实验室演示`、`待补充证据`、`文档/计划`。
 
 ## 1. 总体功能地图
 
@@ -19,12 +19,12 @@
 | 三类攻击案例 | B | 已实现为固定候选 | `tests/attacks/cases/*.json`、`docs/attack-cases.md` | `tests/attacks/` | 攻击样例、预期决策和证据 |
 | 固定 SQL 权限回放 | B | 实验室演示 | `app/lab_gateway.py`、`app/main.py` | `tests/test_query_lab.py` | `artifacts/database-evidence.json` |
 | 一次性危险写实验 | B | 实验室演示 | `db/profiles/write_lab.sql`、`docs/write-lab-experiment.md` | `tests/attacks/test_database_controls.py` | write_lab 状态变更和重置证据 |
-| 独立 SQL 解析 | C | 待实现 | `app/gateway.py` 目前只有协议和安全默认实现 | 待新增网关回归测试 | `ALLOW/BLOCK` 决策 |
-| 表/列/身份授权策略 | C | 待实现 | 计划放入 `app/gateway.py` 或独立策略模块 | 待新增越权测试 | policy version、reason code |
-| 结果限行与敏感字段脱敏 | C | 待实现 | 计划放入正式网关执行器 | 待新增 `MASK` 测试 | `masked_columns`、`truncated` |
-| 业务审计写入 | C | 待实现 | B 已提供 `audit` 数据库边界，C 尚未接入 | 待新增审计测试 | `audit_id`、SQL digest、决策 |
-| 正式查询结果前端 | C/A | 待实现 | 当前前端只显示生成对照 | 待新增前端结果测试 | 决策、结果表、审计 ID |
-| Pre 汇报材料 | C 主责 | 计划/整理中 | `docs/team-division.md`、`docs/acceptance-report.md` | 现场演练 | PPT、录屏、演示脚本 |
+| 独立 SQL 解析 | C | 已实现 | `app/sql_policy.py` | `tests/test_sql_policy.py` | `ALLOW/BLOCK` 决策 |
+| 表/列授权策略 | C | 已实现 | `app/sql_policy.py` | `tests/test_sql_policy.py` | policy version、reason code |
+| 结果限行与敏感字段脱敏 | C | 已实现 | `app/real_gateway.py`、`api.my_contact` | `tests/test_real_gateway.py`、Docker live 验收 | `masked_columns`、`truncated` |
+| 业务审计写入 | C | 已实现 | `app/audit_writer.py`、`app/query_service.py` | `tests/test_audit_writer.py`、Docker live 验收 | `audit_id`、SQL digest、决策 |
+| 正式查询结果前端 | C/A | 已实现 | `frontend/index.html`、`frontend/app.js`、`frontend/styles.css` | `tests/test_frontend_security.py` | 决策、结果、审计 ID |
+| Pre 汇报材料 | C 主责 | 待补充证据 | `docs/team-division.md`、`docs/acceptance-report.md` | 现场演练 | PPT、录屏、演示脚本 |
 
 ## 2. 成员 A 文件与产物
 
@@ -70,7 +70,7 @@
 - `artifacts/database-evidence.json`：baseline/hardened 固定 SQL 对照；
 - `docs/data-dictionary.md`、`docs/database-validation.md`、`docs/attack-cases.md`、`docs/write-lab-experiment.md`：数据库和攻击证据说明。
 
-## 4. 成员 C 文件与待交付产物
+## 4. 成员 C 文件与交付产物
 
 ### 当前已有接口边界
 
@@ -80,18 +80,17 @@
 - `db/client.py`：C 允许使用的可信身份和受限连接；
 - `docs/integration.md`、`docs/status.md`：C 的接口和验收要求。
 
-### C 尚未完成的实现产物
+### C 已完成的实现产物
 
-1. 独立 SQL 解析器：只允许单条只读查询，阻断多语句、注释绕过和 DML/DDL；
-2. 授权策略：按 `principal_id` 检查表、列和行范围；
-3. 执行器：通过 `query_connection()` 使用 hardened 角色和只读事务；
-4. 结果处理：限制行数、敏感字段脱敏、记录执行耗时；
-5. 审计：写入 `audit.events`，返回 `audit_id` 和 `sql_digest`；
-6. 测试：允许、脱敏、阻断、数据库错误、RLS 空结果各一组回归；
-7. 前端：显示安全决策、阻断原因、结果、脱敏列、截断状态和审计 ID；
-8. Pre 产物：PPT、10 分钟演示脚本、固定样例、录屏和答辩问题清单。
+1. `app/sql_policy.py`：独立 SQLGlot 解析和只读/对象策略；
+2. `app/real_gateway.py`：hardened 角色、只读事务、限行、序列化和 SQLSTATE 映射；
+3. `app/audit_writer.py`：以 `sq_audit_writer` 写入 `audit.events`；
+4. `tests/test_sql_policy.py`、`tests/test_real_gateway.py`、`tests/test_audit_writer.py`：C 回归；
+5. `scripts/verify_ollama_gpu.py`：GPU/CPU placement 证据；
+6. `frontend/`：安全查询结果、决策、审计和空结果展示；
+7. Pre 产物仍需整理：PPT、演示脚本、截图/录屏和答辩问题清单。
 
-这些是待交付项，不能把 `app/lab_gateway.py` 直接标记为 C 网关。`LocalLabGateway` 只用于观察 B 的数据库控制，代码明确设置 `executor=lab_direct`。
+Pre 产物是当前阶段唯一未纳入仓库的主要交付物。不能把 `app/lab_gateway.py` 标记为 C 网关；`LocalLabGateway` 只用于观察 B 的数据库控制，代码明确设置 `executor=lab_direct`。
 
 ## 5. 运行产物和证据边界
 

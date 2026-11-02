@@ -1,6 +1,6 @@
 # 文档导航
 
-更新日期：2026-11-02。当前阶段是 **A/B 已完成、C 的正式 SQL 网关尚未完成**。文档中的“已实现”以代码和实测为准；设计文档、历史记录和固定 SQL 回放不能替代端到端模型安全证据。
+更新日期：2026-11-02。当前阶段是 **A/B 已完成、C 正式 SQL 网关已接入，GPU 仍为 CPU fallback**。文档中的“已实现”以代码和实测为准；设计文档、历史记录和固定 SQL 回放不能替代端到端模型安全证据。
 
 ## 快速入口
 
@@ -20,7 +20,7 @@
 
 | 内容 | 文档 |
 | --- | --- |
-| 服务使用、接口和启动 | [usage-guide.md](usage-guide.md)、[member-a-ai-sql-server-guide.md](member-a-ai-sql-server-guide.md) |
+| 服务使用、接口和启动 | [usage-guide.md](usage-guide.md)、[wsl-guide.md](wsl-guide.md) |
 | Ollama/Mock 模型评估 | [local-model-evaluation.md](local-model-evaluation.md) |
 | GPU 推理检查与排障 | [gpu-inference.md](gpu-inference.md) |
 
@@ -39,7 +39,8 @@
 | 内容 | 文档 |
 | --- | --- |
 | A/B 交接和 C 的接口边界 | [team-bc-handoff.md](team-bc-handoff.md)、[integration.md](integration.md) |
-| C 当前验收和剩余工作 | [status.md](status.md)、[acceptance-report.md](acceptance-report.md) |
+| C 当前验收和剩余工作 | [status.md](status.md)、[acceptance-report.md](acceptance-report.md)、[gpu-inference.md](gpu-inference.md) |
+| C 详细命令与实测结果 | [c-gateway-verification.md](c-gateway-verification.md) |
 | 三人协作、Pre 工作量和交付物 | [team-division.md](team-division.md) |
 
 ## 按研究内容查找
@@ -56,7 +57,8 @@
 
 - [wsl-guide.md](wsl-guide.md)：WSL 环境、Docker、Ollama、端口和常见故障的启动记录；
 - [archive/](archive/)：阶段性旧方案和成员个人记录，只用于追溯，不作为当前实现状态；
-- [member-ab-verification.md](member-ab-verification.md)：A/B 合并后的历史验证记录，当前实测以 [acceptance-report.md](acceptance-report.md) 为准。
+- [member-ab-verification.md](member-ab-verification.md)：A/B 合并阶段的历史验证记录，当前实测以 [acceptance-report.md](acceptance-report.md) 和 [c-gateway-verification.md](c-gateway-verification.md) 为准；
+- `temp/`：已过时但有追溯价值的阶段性文档，不作为当前启动或验收入口。
 
 ## 代码与产物索引
 
@@ -76,4 +78,4 @@
 - `artifacts/database-evidence.json` 是固定 SQL 回放证据，不是模型攻击结果；
 - `artifacts/experiments/` 中的 Mock/Ollama 文件是生成评估记录，必须查看 `provider`、`model_invoked`、`semantic_review` 和完成状态；
 - `lab_direct` 是 B 的实验室直连执行器，不是 C 的正式 SQL 网关；
-- C 完成前，正式 `/api/v1/queries` 默认应返回 `503 unavailable`，不得伪造查询结果。
+- 正式 `/api/v1/queries` 默认仍返回 `503 unavailable`；设置 `SECUREQUERY_FORMAL_GATEWAY=true` 才启用 C 网关。

@@ -11,9 +11,9 @@
 | 驱动 | 616.64 |
 | Ollama | 0.24.0 |
 | 模型 | `qwen2.5-coder:7b` |
-| 当前处理器 | `ollama ps` 显示 `100% CPU` |
+| 当前处理器 | 2026-11-02 冒烟期间连续 5 次显示 `100% CPU` |
 
-因此本机硬件具备 GPU 推理条件，但本次检查时 Ollama 没有使用 GPU。模型已经拉取不代表模型已经在 GPU 上运行。
+因此本机硬件具备 GPU 推理条件，但当前 Ollama 仍没有使用 GPU；`nvidia-smi` 冒烟采样没有 Ollama compute 进程。模型已经拉取不代表模型已经在 GPU 上运行。
 
 ## 2. 如何确认是否使用 GPU
 
@@ -30,11 +30,20 @@ ollama ps
 nvidia-smi
 ```
 
+仓库可重复采集证据：
+
+```bash
+.venv/bin/python scripts/verify_ollama_gpu.py --smoke \
+  --output /tmp/securequery-ollama-gpu-evidence.json
+```
+
 验收依据：
 
 - `ollama ps` 的 `PROCESSOR` 应显示 `GPU` 或 CPU/GPU 混合，而不是 `100% CPU`；
 - `nvidia-smi` 应能看到 Ollama 相关进程和显存占用；
 - 同一问题重复运行时，响应延迟应明显低于当前 CPU 实测。
+
+本次脚本结果：`gpu_verified=false`、`cpu_fallback=true`。当前模型评估不能标记为 GPU-backed。
 
 ## 3. 项目连接配置
 

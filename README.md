@@ -1,15 +1,14 @@
 # SecureQuery AI：本地 AI SQL 攻防演示
 
-以合成校园教务数据研究“自然语言数据库助手”的安全风险。项目把三件事分开验证：模型能否生成符合问题与身份范围的候选 SQL（成员 A）、合成 PostgreSQL 的权限与攻击数据是否可复现（成员 B），以及独立 SQL 网关能否确定性阻断越权和危险 SQL（成员 C，进行中）。
+以合成校园教务数据研究“自然语言数据库助手”的安全风险。项目把三件事分开验证：模型能否生成符合问题与身份范围的候选 SQL（成员 A）、合成 PostgreSQL 的权限与攻击数据是否可复现（成员 B），以及独立 SQL 网关能否确定性阻断越权和危险 SQL（成员 C）。
 
-当前状态：A/B 已同步到 `campus_lab_v1`，A 的查询编排与实验室回放已实现；C 的策略网关尚未接入，默认返回 `503 unavailable`。完整进度、接口字段与剩余工作见 [docs/status.md](docs/status.md)。页面显示的候选 SQL 仍不会被执行。
+当前状态：A/B 已同步到 `campus_lab_v1`，C 的正式网关、审计和安全查询结果面板已接入。默认仍返回 `503 unavailable`，必须显式设置 `SECUREQUERY_FORMAL_GATEWAY=true` 才连接 hardened 数据库。完整进度、接口字段与验收结果见 [docs/status.md](docs/status.md)。
 
 ## 目录与阅读入口
 
 | 内容 | 入口 |
 | --- | --- |
 | 当前进度、接口与剩余工作 | [docs/status.md](docs/status.md) |
-=======
 | WSL 环境下启动与概览 | [docs/wsl-guide.md](docs/wsl-guide.md) |
 | 总体设计与三人分工 | [docs/project-design.md](docs/project-design.md)、[docs/team-division.md](docs/team-division.md) |
 | 成员 A：AI SQL 服务 | [docs/usage-guide.md](docs/usage-guide.md)、[docs/local-model-evaluation.md](docs/local-model-evaluation.md)、[docs/integration.md](docs/integration.md) |
@@ -72,8 +71,7 @@ python -m venv .venv
 # 成员 A：API / Provider / 提示词 / 前端安全（Mock，不依赖 Ollama 或数据库）
 python -m pytest tests/test_api.py tests/test_config.py tests/test_diagnostics.py \
   tests/test_evaluation.py tests/test_frontend_security.py tests/test_prompts.py \
-  tests/test_providers.py tests/test_generation_attacks.py
-  tests/test_providers.py tests/attacks/test_generation_attacks.py \
+  tests/test_providers.py tests/test_generation_attacks.py \
   tests/test_schema_contract.py tests/test_query_route.py
 
 # 成员 B：数据库与攻击回归（需先启动 Docker PostgreSQL；只依赖 requirements-dev.lock）
@@ -96,7 +94,7 @@ flowchart LR
     Q -->|统一状态与结果表格| UI
 ```
 
-`POST /api/v1/queries` 已实现编排与契约（见[联调契约](docs/integration.md)），C 未接入时返回 503 `unavailable`。模型输出默认视为不可信，必须经 C 的网关授权后才能执行；B 的数据库连接不提供绕过网关的模型执行接口。
+`POST /api/v1/queries` 已实现编排与契约（见[联调契约](docs/integration.md)）。未显式启用正式网关时返回 503 `unavailable`；启用后模型输出仍必须经 C 授权，B 的数据库连接不提供绕过网关的模型执行接口。
 
 ## 边界与安全
 

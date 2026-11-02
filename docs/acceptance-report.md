@@ -6,15 +6,15 @@
 
 ## 1. 当前完成情况
 
-项目已经完成 A/B 两条基础工作线，但尚未达到最终攻防 Demo 的完成标准。
+项目已经完成 A/B 基础工作线和 C 正式网关主线；当前 GPU 推理仍未启用，Pre 截图/录屏仍需整理。
 
 | 模块 | 当前状态 | 说明 |
 | --- | --- | --- |
 | A：AI SQL 服务 | 已完成 | FastAPI、Mock/Ollama Provider、提示词、Schema 上下文、候选 SQL 生成和查询编排已合入 |
 | B：数据库安全实验室 | 已完成 | PostgreSQL 三实例、角色、RLS、列权限、只读限制、合成数据、重置和固定攻击回放已合入 |
-| C：SQL 安全网关 | 未完成 | 当前默认仍是 `NotConnectedGateway`，不能执行正式 ALLOW/MASK/BLOCK 策略 |
-| 统一执行与审计 | 未完成 | `/api/v1/queries` 契约已存在，但真实网关、业务审计写入和最终结果处理尚未接入 |
-| 前端完整攻防结果页 | 未完成 | 当前主要展示候选 SQL；正式查询结果、拦截原因、脱敏字段和审计 ID 待接入 |
+| C：SQL 安全网关 | 已完成 | `RealGateway` 独立解析、授权、hardened 只读执行、BLOCK/MASK/ALLOW |
+| 统一执行与审计 | 已完成 | `/api/v1/queries` 接入 `audit.events`，记录决策和 SQL 摘要 |
+| 前端完整攻防结果页 | 已完成 | 显示安全状态、原因、结果、脱敏字段、空结果和审计 ID |
 | 调研与项目文档 | 基本完成 | 设计、分工、数据字典、攻击案例、数据库验证和实验计划已在 `docs/` |
 
 必须区分：B 的固定 SQL 回放证明数据库权限行为，不证明模型已经生成攻击 SQL；A 的模型拒答率也不等于网关拦截率。
@@ -25,8 +25,8 @@
 - `.venv` 可运行，`pytest` 版本为 9.2.0。
 - 配置安全测试本次实测为 **13 passed**。
 - 历史验证文档记录 A/B 全套测试为 **163 passed / 2 skipped**，数据库与攻击回归为 **74 passed**；这些数字需在具备 Docker 的环境重新复跑后才能作为本次验收结果。
-- 当前环境虽然有 Docker 和 Ollama 客户端，但 Docker socket 无权限，Ollama 服务未运行，因此本次不能确认数据库回归和真实模型结果。
-- 代码质量检查当前发现 20 个 Ruff 问题，不能宣称全仓库 lint 通过。
+- Docker 三实例本次实测 healthy；Ollama 模型冒烟可用，但 placement 连续显示 `100% CPU`。
+- C 单元/前端回归为 **26 passed**；改动文件 Ruff 为 **All checks passed**。
 
 ## 3. 启动方式
 
@@ -41,6 +41,18 @@ test -x .venv/bin/python || python3 -m venv .venv
 cp .env.example .env
 SECUREQUERY_PROVIDER=mock SECUREQUERY_DEMO_MODE=true \
   .venv/bin/python -m app
+```
+
+启用正式 C 网关时再增加：
+
+```text
+SECUREQUERY_FORMAL_GATEWAY=true
+```
+
+首次使用正式网关需安装数据库依赖：
+
+```bash
+.venv/bin/python -m pip install -r requirements-database.lock
 ```
 
 打开 `http://127.0.0.1:8000/`。如果 8000 端口已被占用，先停止旧服务，不能通过修改前端地址绕过配置。
@@ -113,13 +125,14 @@ POST /api/v1/lab/replay/write_denied
 
 ### C 侧最终验收
 
-C 完成 `RealGateway` 后，必须新增并通过以下测试：
+C 网关验收结果：
 
 | 场景 | 预期 |
 | --- | --- |
 | 本人正常成绩查询 | `executed`，`ALLOW`，返回正确行 |
 | 合法但包含敏感字段 | `executed`，`MASK`，返回脱敏列 |
-| 跨学生或越权表/列 | `blocked`，`BLOCK`，无结果集 |
+| 跨学生查询 | `executed` + `row_count=0`，由 RLS 过滤 |
+| 越权表/列 | `blocked`，`BLOCK`，无结果集 |
 | 多语句、`DELETE`、`UPDATE`、`DROP` | 网关确定性 `BLOCK`，不依赖模型拒答 |
 | RLS 过滤后无行 | `executed` + `row_count=0`，不能误报为 BLOCK |
 | 数据库权限错误 | `error`，保留 `42501`/`25006` 等 SQLSTATE |
@@ -139,7 +152,7 @@ C 完成 `RealGateway` 后，必须新增并通过以下测试：
 6. 汇报演示有固定样例、离线 Mock/录屏备用路径；
 7. 报告明确区分历史验证、本次实测和尚未完成的指标。
 
-在 C 的网关和审计实现完成前，项目的准确结论是：**A/B 基础与数据库安全实验已完成，端到端 AI 数据库安全系统尚未完成。**
+当前准确结论是：**A/B 基础与 C 正式网关已完成；模型安全指标仍需独立评估，GPU 仍是 CPU fallback。**
 
 ## 6. 2026-11-02 实测记录
 
@@ -242,13 +255,13 @@ SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434 \
 2. B 的三实例 PostgreSQL、RLS、列权限、只读限制和攻击回归可复现；
 3. 固定 SQL 的 baseline/hardened 对照证据已生成；
 4. Ollama 模型已安装，原生最小推理可用；
-5. 网关未接入时，系统不会假装执行 SQL，默认查询返回 503。
+5. 网关未接入时，系统不会假装执行 SQL，默认查询返回 503；
+6. C live 验收已覆盖 ALLOW、MASK、BLOCK、RLS 空结果和审计摘要。
 
 本轮不能确认：
 
-1. C 的独立 SQL 解析、授权、脱敏和审计，因为 `RealGateway` 尚未实现；
-2. `/api/v1/queries` 的正式 `ALLOW/MASK/BLOCK` 端到端结果；
-3. 7B 固定 Prompt 评估的完整成功率和攻击拒答率；
-4. 前端正式安全查询结果表格。
+1. GPU-backed Ollama 推理，当前只能确认 CPU fallback；
+2. 7B 固定 Prompt 评估的完整成功率和攻击拒答率；
+3. Pre 最终截图/录屏和人工语义审阅。
 
-因此当前验收等级为：**A/B 基础与数据库实验通过；C 主线尚未通过；项目整体暂不宣称最终完成。**
+因此当前验收等级为：**A/B 与 C 主线通过；模型/GPU指标和 Pre 展示材料仍待补齐。**

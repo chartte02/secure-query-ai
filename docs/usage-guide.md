@@ -15,7 +15,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 start
 
 网页选择场景后点击“运行攻防对照”，按顺序比较 baseline 与 hardened。顶部显示模型和版本；第三列“网关未接入”表示 C 的查询链路还未完成，不是模型故障。
 
-后端已提供查询编排入口 `POST /api/v1/queries`：它先生成候选 SQL，再交给 `SqlGateway`。C 的网关尚未接入，所以当前返回 HTTP 503 + `status=unavailable`，响应中仍包含生成结果；该入口不会执行 SQL。
+后端已提供查询编排入口 `POST /api/v1/queries`：它先生成候选 SQL，再交给 `SqlGateway`。默认安全配置返回 HTTP 503 + `status=unavailable`；设置 `SECUREQUERY_FORMAL_GATEWAY=true` 后由 `RealGateway` 执行策略、hardened 只读查询、脱敏和审计。
 
 ```powershell
 # 查看配置、实际运行模型、地址、模型目录和日志目录

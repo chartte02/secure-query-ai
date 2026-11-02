@@ -1,12 +1,12 @@
 # 项目状态与交接
 
-更新日期：2026-11-01。分支：`hongcl`。
+更新日期：2026-11-02。分支：`main`。
 
-> 本文只回答“现在做到哪、还剩什么”。设计与权限细节见 [联调契约](integration.md)、[数据库契约](database-contract.md)；A 的实现细节见 [成员 A 指南](member-a-ai-sql-server-guide.md)。进度以本文为准。
+> 本文只回答“现在做到哪、还剩什么”。设计与权限细节见 [联调契约](integration.md)、[数据库契约](database-contract.md)；启动和复现见 [WSL 指南](wsl-guide.md)。进度以本文为准。
 
 ## 1. 一句话
 
-A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连和固定 SQL 回放均已完成。**唯一剩余的主线工作是 C 的策略网关、执行器、审计与前端结果表格。**
+A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连和固定 SQL 回放均已完成。C 的正式网关、审计和前端结果面板已接入，当前 GPU 仍记录为 CPU fallback。
 
 ## 2. 完成度
 
@@ -14,7 +14,7 @@ A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编�
 | --- | --- | --- | --- |
 | A | ✅ | Schema/Prompt v2、Mock、查询编排、实验室直连、固定回放、契约测试 | v2 评估已生成 26 条，人工审阅待完成 |
 | B | ✅ | 建表/角色/RLS/列权限/种子数据、74 项回归、Docker 三实例 | 无；Schema 变更需先升版本 |
-| C | ⬜ | — | 策略网关、只读执行、脱敏/限行、审计写入、前端结果表格 |
+| C | 🟡 | SQLGlot 策略、hardened 只读执行、MASK/限行、audit.events、前端安全查询 | TestClient 在当前 Python 3.13/AnyIO 环境生命周期入口挂起；GPU 尚未启用 |
 
 ## 3. 当前可用接口
 
@@ -57,11 +57,11 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 
 | 项目 | 结果 |
 | --- | --- |
-| 全套 `pytest` | **163 passed / 2 skipped** |
+| C 单元/前端回归 | **26 passed**（策略、执行、审计、前端） |
 | A 离线测试 | **80 passed** |
 | `tests/db + tests/attacks` | **74 passed** |
 | 实验室直连/回放 | **12 passed** |
-| `ruff check`（改动文件） | All checks passed |
+| `ruff check`（C 改动文件） | All checks passed |
 
 > 分组统计有少量重叠（`tests/attacks/test_generation_attacks.py` 同时属于 A 与 attacks），总数以全套 **163 passed / 2 skipped** 为准。
 
@@ -78,6 +78,17 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 
 真实 7B 冒烟：`hardened_v2` + `campus_lab_v1` 生成的 SQL 可在 hardened 库执行并返回正确行；这是单样本，不是成功率。真实模型对明显越权/写请求会先拒答，因此 B 的 SQLSTATE 演示使用固定回放。
 
+正式 C 网关 live 验收（ASGI 直连 + Docker hardened）：
+
+| 场景 | 实测结果 |
+| --- | --- |
+| 本人成绩 | HTTP 200，`executed`，`ALLOW/POLICY_ALLOW`，3 行 |
+| 危险写入 | HTTP 200，`blocked`，`BLOCK/NON_READ_ONLY`，无结果 |
+| 敏感列 | HTTP 200，`blocked`，`BLOCK/COLUMN_DENIED`，无结果 |
+| 跨学生查询 | HTTP 200，`executed`，`ALLOW`，RLS 过滤为 0 行 |
+| 脱敏联系方式 | HTTP 200，`executed`，`MASK/MASKED_VIEW`，`PHONE_TEST_***` |
+| 审计 | 最近记录含决策、原因和 64 位 `sql_digest`，不保存 SQL 原文 |
+
 v2 评估记录（2026-11-01，文件未提交）：`artifacts/experiments/ollama-qwen2.5-coder-7b-20261101T110745Z-483c31af.json`，26 条记录，Prompt/Schema 为 `baseline_v2/hardened_v2` + `campus_lab_v1`。
 
 | 指标 | baseline_v2 | hardened_v2 |
@@ -92,31 +103,18 @@ v2 评估记录（2026-11-01，文件未提交）：`artifacts/experiments/ollam
 
 ## 5. 剩余工作
 
-### C：策略网关与执行器（主线）
+### C：策略网关与执行器（已实现）
 
-只需要实现一个方法，路由和响应模型不必再改：
+实现入口为 `app/sql_policy.py`、`app/real_gateway.py`、`app/audit_writer.py` 和 `app/query_service.py`。网关独立解析候选 SQL，执行前检查只读与对象策略，再使用 hardened 受限角色执行；前端不直接提交 SQL、DSN 或角色。
 
-```python
-class RealGateway:
-    executor = "gateway"
+已验证的边界：
 
-    async def inspect_and_execute(self, handoff: GatewayHandoff) -> GatewayOutcome:
-        # 1. 用 sqlglot 独立解析 handoff.candidate_sql
-        # 2. 只允许单条只读 SELECT；按 principal_id 做表/列/范围策略
-        # 3. 通过 db.client.query_connection(handoff.principal_id) 只读执行
-        # 4. 限行、脱敏；捕获 psycopg.Error
-        # 5. 返回 GatewayOutcome(decision, result=..., error=..., db_role=...)
-        ...
-```
-
-要求：
-
-- 不信任 A 的 `diagnostics`、模型拒答或浏览器身份；`principal_id` 必须映射到固定 actor。
-- 区分三种结果：C 策略 `BLOCK`；B 的数据库错误（返回 `QueryError`，带 SQLSTATE）；RLS 过滤后的 `executed` + 0 行。
-- `result` 需要 `masked_columns`、`truncated`、`execution_ms`；行数上限由 C 决定。
-- 写 `audit.events`：`event_id`、`run_id`、`actor_id`、`db_role`、`event_type`、`decision`（含 `ERROR`）、`reason_code`、`sql_digest`、`occurred_at`；响应返回 `audit_id`。
-- 注入方式：`create_app(..., gateway=RealGateway())`；如做成独立服务，则按固定内部地址调用。
-- 前端结果表格（A/C 共同）：当前页面只展示生成对照，未调用 `/api/v1/queries`。
+- 不信任 A 的诊断、模型拒答或浏览器身份；演示身份映射为固定 actor；
+- 区分策略 `BLOCK`、数据库错误和 RLS 过滤后的 `executed + 0 行`；
+- 结果具备限行、脱敏、执行耗时和审计 ID；
+- `audit.events` 只保存决策、原因、角色和 SQL 摘要，不保存原始 SQL；
+- `SECUREQUERY_FORMAL_GATEWAY=true` 才启用正式网关，`lab_direct` 仍是 B 的隔离回放；
+- 前端安全查询面板只提交自然语言、演示身份和上下文。
 
 验收：
 
@@ -127,7 +125,7 @@ class RealGateway:
 ### A：非阻塞
 
 - 人工审阅 2026-11-01 的 26 条 v2 评估记录（含 1 次正常拒答与 6 条攻击输出）；旧 `campus_v1` 结果不能与新结果混统。可补跑 3B 或重复运行。
-- 可选：`prompt_payload_hash`、前端查询结果面板。
+- 可选：补跑更小模型或重复评估，并完成人工语义审阅。
 - 不把 A 改成直连数据库；实验室执行器仅用于本地演示。
 
 ### B：保持
@@ -189,8 +187,8 @@ wsl --shutdown
 - [x] B 的 Schema/权限/种子数据与 A 的模型上下文对齐
 - [x] A 的 `/api/v1/queries` 编排与契约
 - [x] 实验室直连与固定回放（可稳定演示 B 的结果与 SQLSTATE）
-- [ ] C 的 `RealGateway` 实现与注入
-- [ ] C 的 `audit.events` 业务写入与 `audit_id`
-- [ ] 前端“安全查询”结果表格
+- [x] C 的 `RealGateway` 实现与注入
+- [x] C 的 `audit.events` 业务写入与 `audit_id`
+- [x] 前端“安全查询”结果表格
 - [ ] 人工审阅 v2 评估记录（26 条已生成，文件未提交）
-- [ ] 三人联调：一次请求 ID 贯穿生成、策略、执行、审计
+- [x] 三人联调：一次请求 ID 贯穿生成、策略、执行、审计

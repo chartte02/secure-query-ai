@@ -4,16 +4,16 @@
 
 ## 当前已经实现什么
 
-当前页面是**候选 SQL 生成对照台**，还不是能够查询数据库的完整产品。
+当前页面同时提供候选 SQL 生成对照和显式“安全查询”结果面板；正式数据库查询必须经过 C 网关。
 
 | 组件 | 地址或位置 | 当前能力 |
 |---|---|---|
 | 项目专用 Ollama | `http://127.0.0.1:11435` | 供 A 调用本地模型，与系统默认 11434 实例区分 |
 | FastAPI 与同源前端 | `http://127.0.0.1:8000` | 提供网页、配置目录、健康检查和候选 SQL 生成 |
 | A 生成接口 | `POST /api/v1/generations` | 接收问题与 Demo 夹具，返回 SQL、拒答、诊断和来源 |
-| A 查询编排 | `POST /api/v1/queries` | 已实现：生成 → 交给网关；C 未接入时返回 503 `unavailable`，不执行 SQL |
-| C 安全网关 | 尚未接入 | 页面第三列只显示预备载荷，不发送授权或执行请求 |
-| B PostgreSQL | 已初始化，尚未接入 A/C 查询链 | 当前没有数据库查询结果 |
+| A 查询编排 | `POST /api/v1/queries` | 已实现：生成 → 交给 C 网关；未显式启用正式网关时返回 503 `unavailable`，不执行 SQL |
+| C 安全网关 | 已接入 | SQLGlot 策略、hardened 只读执行、MASK/限行、审计 |
+| B PostgreSQL | 已接入 hardened 查询链 | 正式网关使用受限 actor 连接；`lab_direct` 仍是固定 SQL 实验室回放 |
 
 统一通过项目根目录 `run.ps1` 管理环境。模型、服务日志和 PID 属于本机运行数据，放在忽略目录 `.runtime/`；它们不属于代码、数据库种子数据或实验结论。
 
@@ -25,7 +25,9 @@
     → A 组装 Prompt → 本地 Ollama → 候选或拒答
     → POST /api/v1/generations（hardened）
     → A 组装 Prompt → 本地 Ollama → 候选或拒答
-    → 前端并排展示，不执行 SQL
+    → 前端并排展示
+    → 有候选时 POST /api/v1/queries（浏览器不提交 SQL）
+    → C 独立解析/授权/执行/审计
 ```
 
 SQLGlot 诊断只描述生成质量，不能代替 C 的策略。Mock 来源必须显示“模拟”，不能当作真实模型或数据库结果。
@@ -78,13 +80,13 @@ sequenceDiagram
 | A | 生成接口、Prompt、Schema 上下文、超时、诊断和模型来源 | 不持有数据库凭据；输出只是候选；不给出最终 ALLOW |
 | B | PostgreSQL DDL、外键、合成种子数据、角色、视图和重置方法 | 实际字段与 `campus_lab_v1` 一致；`student_s01`、`teacher_t01` 等 ID 映射一致；无真实个人数据 |
 | C | 独立 SQL 解析、授权、只读执行、限行、脱敏、审计 | 不信任浏览器身份、A 的诊断或模型拒答；允许、脱敏、阻断均有测试 |
-| 共同 | 查询编排、统一响应和前端结果表格 | 一次请求 ID 贯穿生成、策略、执行与审计；明确已实现与待实现部分 |
+| 共同 | 查询编排、统一响应和前端结果表格 | 一次请求 ID 贯穿生成、策略、执行与审计；模型安全指标和 Pre 证据仍需补齐 |
 
 B 修改表结构时，须同步更新版本化 Schema 与 A/C 的契约，不能让模型继续猜测旧字段。数据库凭据只配置给 C 的执行组件，不放进 Prompt、浏览器、A 的生成配置或接口响应。
 
-## 查询编排接口（已实现，网关待接入）
+## 查询编排接口（已实现，正式网关默认关闭）
 
-`POST /api/v1/queries` 已在 A 的服务中实现编排与契约（`app/query_service.py`、`app/gateway.py`）。C 的网关尚未接入，因此端点当前返回 HTTP 503 + `status=unavailable`；响应仍包含生成结果，不会执行 SQL。`POST /api/v1/generations` 继续保持其生成职责。
+`POST /api/v1/queries` 由 A 的编排和 C 的 `RealGateway` 共同完成（`app/query_service.py`、`app/real_gateway.py`）。默认仍是安全的 `503 unavailable`；设置 `SECUREQUERY_FORMAL_GATEWAY=true` 后才连接本地 hardened 数据库。`POST /api/v1/generations` 继续保持只生成职责。
 
 请求示例：
 
@@ -105,7 +107,7 @@ Content-Type: application/json
 - 课堂场景使用固定白名单 Demo 身份（`student_s01`、`student_s02`、`teacher_t01`），必须明确不是真实认证。浏览器的身份选择不得自动成为真实数据库授权依据。
 - 正常查询入口固定使用 hardened；请求**不接受** `prompt_profile`，避免通过查询入口选择 baseline。
 - 编排端点直接消费 A 的生成结果，不让浏览器回传 SQL 作为执行来源。
-- C 未接入时返回 HTTP 503 + `unavailable`，不伪造 ALLOW、MASK、BLOCK 或数据库记录。
+- 未显式启用 C 时返回 HTTP 503 + `unavailable`，不伪造 ALLOW、MASK、BLOCK 或数据库记录。
 
 成功响应示例：
 
@@ -179,7 +181,7 @@ Content-Type: application/json
 5. `rows=[]` 时明确显示“查询成功，结果为空”；不要与未执行、拒答或网络错误混淆。
 6. 显示行数、是否截断、脱敏字段和审计 ID。数据库结果不能标作 Mock，也不能用预置样例填补未接入状态。
 
-在 C/B 尚未提供实现前，当前页面继续显示“网关未接入”和“SQL 未执行”。不要为了让表格有内容，绕过网关直接连接 B 的数据库。
+`lab_direct` 只用于 B 的固定 SQL 观察；正式页面不绕过网关直接连接 B。
 
 ## 接入顺序
 

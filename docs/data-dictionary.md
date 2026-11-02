@@ -6,13 +6,13 @@
 
 ## 1. Schema 与身份标识（A 对齐 campus_v2 的基础）
 
-Schema 版本键：`campus_v1` 对应的**真实**结构为 `db/migrations/001_schema.sql`；A 的 [app/catalog.py](../app/catalog.py) `SCHEMA_VERSION = "campus_v1"` 与本字典不一致时，由 A 发布 `campus_v2` 并同步提示词上下文（见 [team-bc-handoff.md](team-bc-handoff.md) 第 1 条）。
+Schema 版本键：当前正式链路使用 `campus_lab_v1`，真实结构位于 `db/migrations/001_schema.sql`；A 的 [app/catalog.py](../app/catalog.py) 与数据库字段必须保持同版本。若修改字段，先发布新 Schema 版本，再同步 Prompt、测试和 C 策略。
 
 **身份标识差异（A 必须对齐）**：
 
-| 项 | A 的 campus_v1 | 本字典（真实库） |
+| 项 | A 的 campus_lab_v1 | 本字典（真实库） |
 | --- | --- | --- |
-| 学生 ID | `S001`/`student_001` | `S01`–`S20`/`student_s01`–`student_s20` |
+| 学生 ID | `S01`/`student_s01` | `S01`–`S20`/`student_s01`–`student_s20` |
 | 教师 ID | `T001`/`teacher_001` | `T01`–`T03`/`teacher_t01`–`teacher_t03` |
 | 管理员 | `admin_demo`/`A001` | **无查询身份**（见第 6 节待定口径 2） |
 
