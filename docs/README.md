@@ -1,5 +1,6 @@
 # 文档总索引
 
+更新日期：2026-11-01。已合入成员 A 的 AI SQL 服务与成员 B 的数据库/权限基础；成员 B 已交付数据字典与攻击案例卡；成员 C 的 SQL 网关、统一执行入口与前端结果表待接入。
 更新日期：2026-11-01。已合入成员 A 的 AI SQL 服务与成员 B 的数据库/权限基础；成员 B 已交付 S4 冻结评估样例集（60 条）；成员 C 的 SQL 网关、统一执行入口与前端结果表待接入。
 更新日期：2026-11-01。当前进度与剩余工作以 [状态与交接](status.md) 为准；本文是文档索引。
 
@@ -11,6 +12,8 @@
 | 启动环境、运行测试 | [根 README](../README.md) | 可执行操作说明 |
 | 梳理 A 的 AI SQL 服务、接入 Docker、查看路由 | [成员 A 实施指南](member-a-ai-sql-server-guide.md) | 代码脉络、Docker 配置、查询编排与实验室回放 |
 | A/C 接入数据库 | [数据库接入契约](database-contract.md) | 已实现接口和授权规则 |
+| 查表结构、身份、预期行（A 对齐 v2 用） | [数据字典](data-dictionary.md) | 最终数据契约 v1；含三个待三人定的口径 |
+| 三类攻击的前提与预期结果 | [攻击案例卡](attack-cases.md) | 威胁模型+案例卡；数据库层已实证，模型/网关层待接入 |
 | 检查目前验证了什么 | [数据库验证记录](database-validation.md) | 71 项自动测试及固定 SQL 对照；不代表模型攻击结果 |
 | S4 正式评估样例集（60 条冻结） | [evaluation.json](../tests/attacks/cases/evaluation.json) | 20 正常/10 跨用户/8 敏感/8 直接/8 间接/6 危险；预期行 hardened 实测，配套契约测试 |
 | write_lab 一次性 DML 实验正式记录 | [write-lab-experiment.md](write-lab-experiment.md) | 写权限边界、实例隔离与重置可复现的固定 SQL 实测 |
