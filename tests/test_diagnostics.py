@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from app.diagnostics import diagnose_sql
 import pytest
+
+from app.diagnostics import diagnose_sql
 
 
 def test_read_only_select_is_parsed_without_policy_warning() -> None:
-    result = diagnose_sql("SELECT g.score FROM grades AS g WHERE g.student_id = 'S001'")
+    result = diagnose_sql("SELECT g.score FROM academic.grades AS g WHERE g.student_id = 'S01'")
     assert result.parseable is True
     assert result.statement_types == ["SELECT"]
     assert result.tables == ["grades"]
@@ -14,7 +15,7 @@ def test_read_only_select_is_parsed_without_policy_warning() -> None:
 
 
 def test_dangerous_statement_is_diagnostic_not_authorization() -> None:
-    result = diagnose_sql("DROP TABLE students")
+    result = diagnose_sql("DROP TABLE academic.students")
     assert result.parseable is True
     assert result.statement_types == ["DROP"]
     assert result.warnings == ["non_read_only_candidate"]

@@ -1,6 +1,6 @@
 # A / B / C 联调契约
 
-各成员待核实项、建议新增文件及签收顺序见[给成员 B、C 的清单](team-bc-handoff.md)。
+当前进度与剩余工作见[状态与交接](status.md)；各成员待核实项与签收顺序见[给成员 B、C 的清单](team-bc-handoff.md)。
 
 ## 当前已经实现什么
 
@@ -11,8 +11,9 @@
 | 项目专用 Ollama | `http://127.0.0.1:11435` | 供 A 调用本地模型，与系统默认 11434 实例区分 |
 | FastAPI 与同源前端 | `http://127.0.0.1:8000` | 提供网页、配置目录、健康检查和候选 SQL 生成 |
 | A 生成接口 | `POST /api/v1/generations` | 接收问题与 Demo 夹具，返回 SQL、拒答、诊断和来源 |
+| A 查询编排 | `POST /api/v1/queries` | 已实现：生成 → 交给网关；C 未接入时返回 503 `unavailable`，不执行 SQL |
 | C 安全网关 | 尚未接入 | 页面第三列只显示预备载荷，不发送授权或执行请求 |
-| B PostgreSQL | 尚未接入 | 当前没有数据库查询结果 |
+| B PostgreSQL | 已初始化，尚未接入 A/C 查询链 | 当前没有数据库查询结果 |
 
 统一通过项目根目录 `run.ps1` 管理环境。模型、服务日志和 PID 属于本机运行数据，放在忽略目录 `.runtime/`；它们不属于代码、数据库种子数据或实验结论。
 
@@ -37,7 +38,7 @@ SQLGlot 诊断只描述生成质量，不能代替 C 的策略。Mock 来源必�
 sequenceDiagram
     actor User as 演示者
     participant UI as 同源前端
-    participant API as 查询编排端点（待实现）
+    participant API as 查询编排端点（A 已实现）
     participant A as A：候选 SQL 生成
     participant LLM as Ollama：11435
     participant C as C：安全网关与执行
@@ -75,15 +76,15 @@ sequenceDiagram
 | 负责人 | 必须交付 | 联调时必须确认 |
 |---|---|---|
 | A | 生成接口、Prompt、Schema 上下文、超时、诊断和模型来源 | 不持有数据库凭据；输出只是候选；不给出最终 ALLOW |
-| B | PostgreSQL DDL、外键、合成种子数据、角色、视图和重置方法 | 实际字段与 `campus_v1` 一致；S001、T001 等 ID 映射一致；无真实个人数据 |
+| B | PostgreSQL DDL、外键、合成种子数据、角色、视图和重置方法 | 实际字段与 `campus_lab_v1` 一致；`student_s01`、`teacher_t01` 等 ID 映射一致；无真实个人数据 |
 | C | 独立 SQL 解析、授权、只读执行、限行、脱敏、审计 | 不信任浏览器身份、A 的诊断或模型拒答；允许、脱敏、阻断均有测试 |
 | 共同 | 查询编排、统一响应和前端结果表格 | 一次请求 ID 贯穿生成、策略、执行与审计；明确已实现与待实现部分 |
 
 B 修改表结构时，须同步更新版本化 Schema 与 A/C 的契约，不能让模型继续猜测旧字段。数据库凭据只配置给 C 的执行组件，不放进 Prompt、浏览器、A 的生成配置或接口响应。
 
-## 未来的前端查询接口（尚未实现）
+## 查询编排接口（已实现，网关待接入）
 
-以下是联调约定，**当前服务没有实现 `POST /api/v1/queries`**，不能将示例当作已可调用接口。现有 `POST /api/v1/generations` 保持其生成职责。
+`POST /api/v1/queries` 已在 A 的服务中实现编排与契约（`app/query_service.py`、`app/gateway.py`）。C 的网关尚未接入，因此端点当前返回 HTTP 503 + `status=unavailable`；响应仍包含生成结果，不会执行 SQL。`POST /api/v1/generations` 继续保持其生成职责。
 
 请求示例：
 
@@ -92,8 +93,8 @@ POST /api/v1/queries
 Content-Type: application/json
 
 {
-  "question": "查询我在《数据库》这门课的成绩",
-  "prompt_profile": "hardened",
+  "question": "查询我在《数据库原理及安全》这门课的成绩",
+  "principal_id": "student_s01",
   "context_profile": "clean"
 }
 ```
@@ -101,10 +102,10 @@ Content-Type: application/json
 要求：
 
 - 身份由服务端认证依赖或可信会话取得；请求不接受角色、数据库 URL、Schema、Ollama URL 或待执行 SQL。
-- 课堂场景可以使用服务器白名单 Demo 身份，但必须明确不是真实认证。浏览器的身份选择不得自动成为真实数据库授权依据。
-- 正常查询入口默认使用 hardened。baseline 和恶意上下文只用于明确的 Demo 对照；不会因选择 baseline 自动放宽 C 的策略。
+- 课堂场景使用固定白名单 Demo 身份（`student_s01`、`student_s02`、`teacher_t01`），必须明确不是真实认证。浏览器的身份选择不得自动成为真实数据库授权依据。
+- 正常查询入口固定使用 hardened；请求**不接受** `prompt_profile`，避免通过查询入口选择 baseline。
 - 编排端点直接消费 A 的生成结果，不让浏览器回传 SQL 作为执行来源。
-- C 未接入时返回 `unavailable`，不伪造 ALLOW、MASK、BLOCK 或数据库记录。
+- C 未接入时返回 HTTP 503 + `unavailable`，不伪造 ALLOW、MASK、BLOCK 或数据库记录。
 
 成功响应示例：
 
@@ -114,15 +115,15 @@ Content-Type: application/json
   "status": "executed",
   "generation": {
     "status": "generated",
-    "candidate_sql": "SELECT c.name AS course_name, g.score FROM grades g JOIN courses c ON c.course_id = g.course_id WHERE g.student_id = 'S001' AND c.name = '数据库'",
+    "candidate_sql": "SELECT c.course_name, g.score FROM academic.grades AS g JOIN academic.course_offerings AS o ON o.offering_id = g.offering_id JOIN academic.courses AS c ON c.course_id = o.course_id WHERE g.student_id = 'S01' AND c.course_id = 'C01'",
     "refusal_reason": null,
     "provenance": {
       "provider": "ollama",
       "model": "qwen2.5-coder:7b",
       "model_digest": "实际模型摘要",
-      "prompt_version": "hardened_v1",
+      "prompt_version": "hardened_v2",
       "prompt_hash": "实际模板哈希",
-      "schema_version": "campus_v1",
+      "schema_version": "campus_lab_v1",
       "context_profile": "clean",
       "latency_ms": 1200
     }
@@ -143,7 +144,10 @@ Content-Type: application/json
     "truncated": false,
     "masked_columns": [],
     "execution_ms": 12
-  }
+  },
+  "error": null,
+  "db_role": "sq_student_s01",
+  "executor": "gateway"
 }
 ```
 
@@ -158,6 +162,9 @@ Content-Type: application/json
 | `blocked` | C 阻断候选 | `decision=BLOCK` | `null` |
 | `executed` | C 已只读执行并处理结果 | `ALLOW` 或 `MASK` | 处理后的表格结果 |
 | `unavailable` | 组件未接入或服务不可用 | 已取得的决策或 `null` | `null` |
+| `error` | 数据库执行失败 | `ALLOW`/`MASK` 或 `null` | `null`；`error.sqlstate` 给出 SQLSTATE |
+
+`error` 字段（`code`、`stage`、`sqlstate`、`message`）用于区分 B 的列权限拒绝（`42501`）、只读拒绝（`25006`）、超时（`57014`）等数据库错误。`db_role` 记录实际执行的数据库角色；`executor` 为 `gateway`（C）或 `lab_direct`（A 的实验室直连，不是 C 契约的一部分）。RLS 的跨行过滤不会产生错误，只会返回 `executed` + `row_count=0`，不能标成 BLOCK。
 
 业务拒答和策略阻断可以返回 HTTP 200；请求字段校验失败为 422；组件不可用为 503，超时为 504。沿用稳定错误码和请求 ID，不向页面泄露异常堆栈、数据库凭据或敏感原始结果。数据库执行错误需单独的稳定错误码，不能显示成“查询为空”或“模型拒答”。
 
