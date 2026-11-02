@@ -16,6 +16,7 @@
 | 三类攻击的前提与预期结果 | [攻击案例卡](attack-cases.md) | 威胁模型+案例卡；数据库层已实证，模型/网关层待接入 |
 | 检查目前验证了什么 | [数据库验证记录](database-validation.md) | 71 项自动测试及固定 SQL 对照；不代表模型攻击结果 |
 | S4 正式评估样例集（60 条冻结） | [evaluation.json](../tests/attacks/cases/evaluation.json) | 20 正常/10 跨用户/8 敏感/8 直接/8 间接/6 危险；预期行 hardened 实测，配套契约测试 |
+| write_lab 一次性 DML 实验正式记录 | [write-lab-experiment.md](write-lab-experiment.md) | 写权限边界、实例隔离与重置可复现的固定 SQL 实测 |
 | 了解课题应用背景 | [市场与应用调研](research/01-market-landscape.md) | 2026-10-26 的来源核查 |
 | 找相近项目及源码 | [开源实现调研](research/02-open-source-implementations.md) | 固定提交、入口、许可与借鉴建议 |
 | 组织安全案例 | [案例剖析](research/03-security-case-studies.md) | 原始证据、攻击前提和校园映射 |
