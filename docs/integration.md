@@ -123,7 +123,7 @@ Content-Type: application/json
       "provider": "ollama",
       "model": "qwen2.5-coder:7b",
       "model_digest": "实际模型摘要",
-      "prompt_version": "hardened_v2",
+      "prompt_version": "hardened_v3",
       "prompt_hash": "实际模板哈希",
       "schema_version": "campus_lab_v1",
       "context_profile": "clean",

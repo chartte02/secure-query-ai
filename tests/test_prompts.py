@@ -36,10 +36,24 @@ def test_prompt_versions_and_hashes_are_stable_and_distinct() -> None:
     baseline_version, _, baseline_hash = load_prompt(PromptProfile.BASELINE)
     hardened_version, _, hardened_hash = load_prompt(PromptProfile.HARDENED)
     assert baseline_version == "baseline_v2"
-    assert hardened_version == "hardened_v2"
+    assert hardened_version == "hardened_v3"
     assert len(baseline_hash) == 16
     assert len(hardened_hash) == 16
     assert baseline_hash != hardened_hash
+
+
+def test_hardened_v3_scope_examples_are_explicit() -> None:
+    _, content, _ = load_prompt(PromptProfile.HARDENED)
+    for phrase in (
+        "An empty result is valid",
+        "public course feedback",
+        "Teaching class",
+        "my teaching classes",
+        "not a database column value",
+        "Never write co.course_name",
+        "filters by a course name",
+    ):
+        assert phrase in content
 
 
 def test_poisoned_context_is_labeled_untrusted_data() -> None:

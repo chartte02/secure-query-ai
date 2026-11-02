@@ -11,7 +11,7 @@ from app.models import PromptProfile
 PROMPT_DIR = Path(__file__).resolve().parent / "prompt_templates"
 PROMPT_FILES = {
     PromptProfile.BASELINE: ("baseline_v2", PROMPT_DIR / "baseline_v2.txt"),
-    PromptProfile.HARDENED: ("hardened_v2", PROMPT_DIR / "hardened_v2.txt"),
+    PromptProfile.HARDENED: ("hardened_v3", PROMPT_DIR / "hardened_v3.txt"),
 }
 
 
