@@ -32,7 +32,7 @@
         <div>
           <strong>模型输出仅为候选，绝不执行 SQL</strong>
           <p>当前身份是本地演示夹具，不是真实认证。SQLGlot 诊断也不代表授权通过。</p>
-          <p>当前链路：网页 → A 生成服务 → Ollama；B 的 PostgreSQL 已就绪。本页只展示 A 的生成对照；数据库回放通过 /api/v1/lab/replay 调用，C 的策略网关尚未接入。</p>
+            <p>当前链路：网页 → A 生成服务 → C 独立网关 → B PostgreSQL。模型输出仍是不可信候选，只有网关决策后才允许执行。</p>
         </div>
       </section>
 
@@ -140,16 +140,25 @@
                 <span class="card-kicker">MODE C · DETERMINISTIC BOUNDARY</span>
                 <h3 id="gateway-title">SQL 安全网关</h3>
               </div>
-              <span class="status-pill status-pending">未接入</span>
+              <span id="gateway-status" class="status-pill status-pending">等待运行</span>
             </header>
             <div class="gateway-empty">
               <div class="gateway-symbol" aria-hidden="true">C</div>
-              <strong>等待成员 C 的网关服务</strong>
-              <p>这里将显示 ALLOW / MASK / BLOCK、策略原因和审计编号。</p>
+              <strong id="gateway-summary">等待安全查询</strong>
+              <p>这里显示 ALLOW / MASK / BLOCK、策略原因、审计编号和数据库结果。</p>
             </div>
+            <dl class="metric-row gateway-metrics">
+              <div><dt>决策 / 原因</dt><dd id="gateway-decision" class="mono">—</dd></div>
+              <div><dt>审计编号</dt><dd id="gateway-audit" class="mono">—</dd></div>
+              <div><dt>行数 / 执行器</dt><dd id="gateway-rows" class="mono">—</dd></div>
+            </dl>
             <section class="output-block">
-              <h4>待发送契约</h4>
-              <pre><code id="gateway-payload">运行加固提示词后生成联调载荷</code></pre>
+              <h4>安全查询结果</h4>
+              <pre><code id="gateway-result">尚无结果</code></pre>
+            </section>
+            <section class="output-block">
+              <h4>安全查询载荷</h4>
+              <pre><code id="gateway-payload">仅发送自然语言、演示身份和上下文</code></pre>
             </section>
           </article>
         </div>

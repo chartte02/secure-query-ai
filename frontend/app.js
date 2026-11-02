@@ -52,6 +52,51 @@ function renderResult(prefix, data) {
   setText(`${prefix}-raw`, data.raw_model_output || "Demo 模式关闭，原始输出未返回");
 }
 
+function resetGateway(message) {
+  const status = byId("gateway-status");
+  status.className = "status-pill status-neutral";
+  status.textContent = message;
+  setText("gateway-summary", message);
+  setText("gateway-decision", "—");
+  setText("gateway-audit", "—");
+  setText("gateway-rows", "—");
+  setText("gateway-result", message);
+}
+
+function renderGatewayResult(data) {
+  const status = byId("gateway-status");
+  status.className = "status-pill";
+  const decision = data.gateway ? data.gateway.decision : null;
+  if (data.status === "executed") {
+    status.classList.add("status-success");
+    status.textContent = data.result && data.result.row_count === 0 ? "成功 · 空结果" : "已执行";
+  } else if (data.status === "blocked" || data.status === "error") {
+    status.classList.add("status-danger");
+    status.textContent = data.status === "blocked" ? "已阻断" : "数据库错误";
+  } else {
+    status.classList.add("status-neutral");
+    status.textContent = data.status;
+  }
+  setText("gateway-summary", data.status === "executed" && data.result?.row_count === 0
+    ? "查询成功但结果为空"
+    : `状态：${data.status}`);
+  setText("gateway-decision", `${decision || "—"} / ${data.gateway?.reason_code || data.error?.code || "—"}`);
+  setText("gateway-audit", data.gateway?.audit_id || "—");
+  setText("gateway-rows", data.result ? `${data.result.row_count} / ${data.executor}` : data.executor);
+  const result = data.result
+    ? JSON.stringify({
+      columns: data.result.columns,
+      rows: data.result.rows,
+      masked_columns: data.result.masked_columns,
+      truncated: data.result.truncated,
+      execution_ms: data.result.execution_ms,
+    }, null, 2)
+    : data.error
+      ? JSON.stringify(data.error, null, 2)
+      : "没有执行结果";
+  setText("gateway-result", result);
+}
+
 function fillSelect(selectId, items, valueKey, labelKey) {
   const select = byId(selectId);
   select.replaceChildren();
@@ -138,7 +183,8 @@ async function runExperiment(event) {
   setBusy(true);
   resetResult("baseline", "正在运行基线提示词…");
   resetResult("hardened", "等待基线推理完成…");
-  setText("gateway-payload", "等待加固提示词结果");
+  resetGateway("等待加固提示词完成");
+  setText("gateway-payload", "仅发送自然语言、演示身份和上下文");
   setText("live-status", "开始运行基线提示词。提示：模型输出不会执行。 ");
 
   const payload = {
@@ -158,18 +204,20 @@ async function runExperiment(event) {
     const hardened = await generate("hardened", payload);
     renderResult("hardened", hardened);
     completed.add("hardened");
-    if (hardened.candidate_sql) {
-      const handoff = {
-        request_id: hardened.request_id,
-        principal_id: payload.principal_id,
-        candidate_sql: hardened.candidate_sql,
-        schema_version: hardened.provenance.schema_version,
-      };
-      setText("gateway-payload", JSON.stringify(handoff, null, 2));
+    if (!hardened.candidate_sql) {
+      const noCandidateMessage = "加固提示词已拒绝：没有候选 SQL，不向网关发送载荷。";
+      resetGateway(noCandidateMessage);
+      setText("gateway-payload", noCandidateMessage);
     } else {
-      setText("gateway-payload", "加固提示词已拒绝：没有候选 SQL，不向网关发送载荷。");
+      setText("gateway-payload", JSON.stringify(payload, null, 2));
+      const gatewayResult = await fetchJson("/api/v1/queries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      renderGatewayResult(gatewayResult);
     }
-    setText("live-status", "攻防对照运行完成。安全网关尚未接入。 ");
+    setText("live-status", "攻防对照与安全查询运行完成。");
   } catch (error) {
     for (const profile of ["baseline", "hardened"]) {
       if (!completed.has(profile)) {
@@ -177,7 +225,8 @@ async function runExperiment(event) {
         byId(`${profile}-status`).className = "status-pill status-danger";
       }
     }
-    setText("gateway-payload", "本轮失败，没有可发送的联调载荷。");
+    resetGateway("本轮未取得结果，SQL 未执行");
+    setText("gateway-payload", "本轮失败，没有发送 SQL 或数据库配置。");
     const message = error instanceof Error ? error.message : "未知错误";
     showError(message === "Failed to fetch" ? "无法连接本地服务，请确认服务已启动后重试。" : message);
   } finally {

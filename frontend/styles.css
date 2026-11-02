@@ -189,6 +189,7 @@ select:focus-visible, textarea:focus-visible, button:focus-visible, summary:focu
 .baseline-card { border-top: 3px solid var(--red); }
 .hardened-card { border-top: 3px solid var(--green); }
 .gateway-card { border-top: 3px solid var(--amber); }
+.gateway-metrics { align-items: flex-start; }
 .metric-row { margin: 16px 0; }
 .metric-row > div { min-width: 0; }
 .metric-row dt { color: var(--subtle); font-size: .75rem; }
