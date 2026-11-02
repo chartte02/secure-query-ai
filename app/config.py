@@ -8,7 +8,6 @@ from urllib.parse import urlsplit
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 ProviderName = Literal["mock", "ollama"]
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,6 +43,9 @@ class AppSettings(BaseSettings):
 
     provider: ProviderName = "mock"
     demo_mode: bool = False
+    # Lab-only direct executor for observing member B's database controls.
+    # It is not member C's policy gateway and is ignored outside demo mode.
+    lab_gateway: bool = False
     model: Literal["qwen2.5-coder:7b", "qwen2.5-coder:3b"] = "qwen2.5-coder:7b"
     ollama_base_url: str = "http://127.0.0.1:11435"
     connect_timeout_seconds: float = Field(default=2.0, gt=0, le=10)
