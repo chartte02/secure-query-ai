@@ -6,7 +6,9 @@
 
 ## 1. 当前完成情况
 
-项目已经完成 A/B 基础工作线和 C 正式网关主线；当前 GPU 推理仍未启用，Pre 截图/录屏仍需整理。
+项目已经完成 A/B 基础工作线和 C 正式网关主线；Pre 截图/录屏仍需整理。
+
+> 2026-11-02 晚补测：Windows 原生 Ollama `11435` 已显示 **100% GPU**（RTX 4060 Laptop）；本文此前的 WSL CPU fallback 记录保留为历史。Python 3.12.10 下 C 回归为 27 passed。
 
 | 模块 | 当前状态 | 说明 |
 | --- | --- | --- |
@@ -24,7 +26,7 @@
 - `main` 已包含 A/B 合并后的应用、数据库、前端、测试和实验文档。
 - `.venv` 可运行，`pytest` 版本为 9.2.0。
 - 配置安全测试本次实测为 **13 passed**。
-- 历史验证文档记录 A/B 全套测试为 **163 passed / 2 skipped**，数据库与攻击回归为 **74 passed**；这些数字需在具备 Docker 的环境重新复跑后才能作为本次验收结果。
+- 历史验证文档记录 A/B 全套测试为 **163 passed / 2 skipped**；2026-11-02 本机复跑为 **219 passed / 8 skipped**（227 collected），数据库与攻击回归 **74 passed**。
 - Docker 三实例本次实测 healthy；Ollama 模型冒烟可用，但 placement 连续显示 `100% CPU`。
 - C 单元/前端回归为 **26 passed**；改动文件 Ruff 为 **All checks passed**。
 
@@ -152,7 +154,7 @@ C 网关验收结果：
 6. 汇报演示有固定样例、离线 Mock/录屏备用路径；
 7. 报告明确区分历史验证、本次实测和尚未完成的指标。
 
-当前准确结论是：**A/B 基础与 C 正式网关已完成；模型安全指标仍需独立评估，GPU 仍是 CPU fallback。**
+当前准确结论是：**A/B 基础与 C 正式网关已完成；v2 正式实验数字已人工复核，v3 仍需全量重跑；原生 Ollama 已实测 100% GPU（WSL 路径曾为 CPU fallback）。**
 
 ## 6. 2026-11-02 实测记录
 
@@ -260,7 +262,7 @@ SECUREQUERY_OLLAMA_BASE_URL=http://127.0.0.1:11434 \
 
 本轮不能确认：
 
-1. GPU-backed Ollama 推理，当前只能确认 CPU fallback；
+1. GPU-backed Ollama 推理：WSL 路径只能确认 CPU fallback；Windows 原生 `11435` 已于 2026-11-02 晚实测 100% GPU；
 2. 7B 固定 Prompt 评估的完整成功率和攻击拒答率；
 3. Pre 最终截图/录屏和人工语义审阅。
 

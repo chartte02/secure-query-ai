@@ -1,20 +1,20 @@
 # 项目状态与交接
 
-更新日期：2026-11-02。分支：`main`。
+更新日期：2026-11-03。分支：`main`。
 
 > 本文只回答“现在做到哪、还剩什么”。设计与权限细节见 [联调契约](integration.md)、[数据库契约](database-contract.md)；启动和复现见 [Windows 启动指南](windows-guide.md)。进度以本文为准。
 
 ## 1. 一句话
 
-A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连和固定 SQL 回放均已完成。C 的正式网关、审计和前端结果面板已接入，当前 GPU 仍记录为 CPU fallback。
+A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连、固定 SQL 回放和 v3 提示词已完成。C 的正式网关、审计和前端结果面板已接入。本机原生 Ollama 实测 `100% GPU`；Python 3.12.10 下 C/TestClient 回归通过。
 
 ## 2. 完成度
 
 | 成员 | 状态 | 已完成 | 未完成 |
 | --- | --- | --- | --- |
-| A | ✅ | Schema/Prompt v2、Mock、查询编排、实验室直连、固定回放、契约测试 | v2 评估已生成 26 条，人工审阅待完成 |
-| B | ✅ | 建表/角色/RLS/列权限/种子数据、74 项回归、Docker 三实例 | 无；Schema 变更需先升版本 |
-| C | 🟡 | SQLGlot 策略、hardened 只读执行、MASK/限行、audit.events、前端安全查询 | TestClient 在当前 Python 3.13/AnyIO 环境生命周期入口挂起；GPU 尚未启用 |
+| A | ✅ | Schema/Prompt v3、Mock、查询编排、实验室直连、固定回放、全量 E4 重跑（18/20） | 无 |
+| B | ✅ | 建表/角色/RLS/列权限/种子数据、74 项回归、E0–E4 正式结果人工复核（E4 18/20） | 无；Schema 变更需先升版本 |
+| C | ✅ | SQLGlot 策略、hardened 只读执行、MASK/限行、audit.events、前端安全查询、27 项回归 | 无代码阻塞；Python 3.13/AnyIO 环境可选择复跑 |
 
 ## 3. 当前可用接口
 
@@ -57,13 +57,15 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 
 | 项目 | 结果 |
 | --- | --- |
-| C 单元/前端回归 | **26 passed**（策略、执行、审计、前端） |
+| 全套 `pytest` | **219 passed / 8 skipped**（共 227 项） |
+| C 单元/前端回归 | **27 passed**（本机 Python 3.12.10；策略、执行、审计、前端） |
+| Ollama placement | **100% GPU**（RTX 4060 Laptop，11435，2026-11-02） |
 | A 离线测试 | **80 passed** |
 | `tests/db + tests/attacks` | **74 passed** |
 | 实验室直连/回放 | **12 passed** |
-| `ruff check`（C 改动文件） | All checks passed |
+| `ruff check`（C 改动文件与本次 A 文件） | All checks passed |
 
-> 分组统计有少量重叠（`tests/attacks/test_generation_attacks.py` 同时属于 A 与 attacks），总数以全套 **163 passed / 2 skipped** 为准。
+> 分组统计有少量重叠（`tests/attacks/test_generation_attacks.py` 同时属于 A 与 attacks），总数以全套 **219 passed / 8 skipped** 为准（共收集 227 项；跳过项为 6 条无固定候选的评估契约样例 + 2 条需显式开启的 Ollama 集成）。
 
 8000 端口实测（实验室模式）：
 
@@ -76,7 +78,7 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 | `write_denied` 回放 | `error` + `25006` + `cannot execute DELETE in a read-only transaction` |
 | `row_limit` 回放 | 100 行，`truncated=true` |
 
-真实 7B 冒烟：`hardened_v2` + `campus_lab_v1` 生成的 SQL 可在 hardened 库执行并返回正确行；这是单样本，不是成功率。真实模型对明显越权/写请求会先拒答，因此 B 的 SQLSTATE 演示使用固定回放。
+真实 7B 定向复验：`hardened_v3` + `campus_lab_v1` 下 7 条正常用例全部生成，5 个误拒恢复；攻击 38/40 拒答。真实模型对明显越权/写请求仍会先拒答，因此 B 的 SQLSTATE 演示使用固定回放。
 
 正式 C 网关 live 验收（ASGI 直连 + Docker hardened）：
 
@@ -89,17 +91,19 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 | 脱敏联系方式 | HTTP 200，`executed`，`MASK/MASKED_VIEW`，`PHONE_TEST_***` |
 | 审计 | 最近记录含决策、原因和 64 位 `sql_digest`，不保存 SQL 原文 |
 
-v2 评估记录（2026-11-01，文件未提交）：`artifacts/experiments/ollama-qwen2.5-coder-7b-20261101T110745Z-483c31af.json`，26 条记录，Prompt/Schema 为 `baseline_v2/hardened_v2` + `campus_lab_v1`。
+正式 v3 全量重跑（2026-11-03，E0–E4 × 60 × 3，720 次，exit 0）：
 
-| 指标 | baseline_v2 | hardened_v2 |
-| --- | ---: | ---: |
-| 正常问题可解析 | 7/7 | 6/7 |
-| 正常问题拒答 | 0/7 | 1/7 |
-| 攻击问题模型拒答 | 0/6 | 6/6 |
-| 输出/传输错误 | 0 | 0 |
-| 平均生成耗时 | 1,593 ms | 1,197 ms |
+| 指标 | E0 | E1 | E2 | E4 |
+| --- | ---: | ---: | ---: | ---: |
+| 攻击用例模型拒答率 | 0% | 95% | 95% | 95% |
+| 实际未授权读取率 | 34% | 0% | 0% | 0% |
+| 写入成功率 | 33% | 0% | 0% | 0% |
+| 正常任务正确率 | 50% | — | — | **90%** |
 
-`sql_execution_correctness` 与 `data_leakage_rate` 仍为 `not_measured`；这是**生成统计**，不能当作网关拦截率、执行正确率或安全结论。人工语义审阅待完成。
+- E4 正常 **18/20**；5 个 v2 误拒全部恢复；E2/E4 在 3 次重复中 0 个用例变化。
+- 攻击 114/120 模型拒答；剩余 6 次为 EI-C2 干净对照 + EI-03 公开反馈，未产生 S02 等越权行。
+- 证据：`artifacts/experiments/e0e4-evaluation-20261102T161828Z-891ac9.jsonl`；v3 审阅：`artifacts/experiments/semantic-review-normal-v3.md`。
+- v2 的 26 条 2026-11-01 记录保留为历史，不能与 v3 混统；完整指标见 [experiment-results.md](experiment-results.md)。
 
 ## 5. 剩余工作
 
@@ -124,8 +128,8 @@ v2 评估记录（2026-11-01，文件未提交）：`artifacts/experiments/ollam
 
 ### A：非阻塞
 
-- 人工审阅 2026-11-01 的 26 条 v2 评估记录（含 1 次正常拒答与 6 条攻击输出）；旧 `campus_v1` 结果不能与新结果混统。可补跑 3B 或重复运行。
-- 可选：补跑更小模型或重复评估，并完成人工语义审阅。
+- ~~人工复核 20 条正常用例~~（已完成 2026-11-03，E4 18/20）。
+- ~~在 `hardened_v3` 下重跑完整 E4~~（已完成 2026-11-03，720 次，exit 0）。
 - 不把 A 改成直连数据库；实验室执行器仅用于本地演示。
 
 ### B：保持
@@ -190,5 +194,6 @@ wsl --shutdown
 - [x] C 的 `RealGateway` 实现与注入
 - [x] C 的 `audit.events` 业务写入与 `audit_id`
 - [x] 前端“安全查询”结果表格
-- [ ] 人工审阅 v2 评估记录（26 条已生成，文件未提交）
+- [x] 人工复核 20 条正常用例（2026-11-03，E4 18/20）
+- [x] v3 全量 E4 重跑（720 次，exit 0）
 - [x] 三人联调：一次请求 ID 贯穿生成、策略、执行、审计

@@ -208,7 +208,7 @@ docker compose --profile lab down -v       # 仅在明确重建实验数据时�
 
 | 层 | 实现位置 | 机制 | 产出 |
 | --- | --- | --- | --- |
-| A 提示词 | `app/prompt_templates/hardened_v2.txt` | 只生成单条只读 `SELECT`；拒绝写/多语句/敏感字段/越权；输出 JSON（`sql` 或 `refusal_reason`） | `refused`（模型拒答） |
+| A 提示词 | `app/prompt_templates/hardened_v3.txt` | 只生成单条只读 `SELECT`；拒绝写/多语句/敏感字段/越权；输出 JSON（`sql` 或 `refusal_reason`） | `refused`（模型拒答） |
 | C 网关 | `app/sql_policy.py`（策略，`campus_policy_v2`）+ `app/real_gateway.py`（执行）+ `app/audit_writer.py`（审计） | SQLGlot 独立解析单条语句；只读检查；表/列/身份白名单；`SELECT *` 与敏感列拒绝；`api.my_contact` 脱敏；限行；只读事务 | `ALLOW` / `MASK` / `BLOCK` + `reason_code` + `audit_id` |
 | B 数据库 | `db/migrations/001_schema.sql` + `db/profiles/hardened.sql` | RLS（学生本人 / 教师所授班）；列权限（敏感列不授权）；只读角色；`api.my_contact` 脱敏视图 | 0 行（RLS 静默过滤）或 SQLSTATE `42501` / `25006` |
 
