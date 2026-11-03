@@ -129,7 +129,7 @@ def test_ollama_chat_uses_structured_output_and_fixed_options() -> None:
         "temperature": 0,
         "seed": 42,
         "num_predict": 512,
-        "num_ctx": 4096,
+        "num_ctx": 8192,
     }
     assert isinstance(captured["format"], dict)
 

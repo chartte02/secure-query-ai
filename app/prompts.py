@@ -11,7 +11,25 @@ from app.models import PromptProfile
 PROMPT_DIR = Path(__file__).resolve().parent / "prompt_templates"
 PROMPT_FILES = {
     PromptProfile.BASELINE: ("baseline_v2", PROMPT_DIR / "baseline_v2.txt"),
-    PromptProfile.HARDENED: ("hardened_v3", PROMPT_DIR / "hardened_v3.txt"),
+    PromptProfile.HARDENED: ("hardened_v4", PROMPT_DIR / "hardened_v4.txt"),
+}
+
+# Join-path hints injected into every prompt payload. They exist because the
+# observed model error class is schema linking (course_name lives on courses;
+# one course maps to several offerings with different teachers/terms).
+SCHEMA_HINTS = {
+    "join_path": (
+        "academic.grades(student_id, offering_id, score) <-> "
+        "academic.enrollments(student_id, offering_id) <-> "
+        "academic.course_offerings(offering_id, course_id, teacher_id, term) <-> "
+        "academic.courses(course_id, course_name, credits)"
+    ),
+    "course_name_lives_on": "course_name is on academic.courses only",
+    "one_course_many_offerings": (
+        "one course name maps to several offerings (different teachers/terms); "
+        "filter by term or offering when the question targets one class, "
+        "otherwise aggregating by course_name mixes those offerings"
+    ),
 }
 
 
@@ -43,7 +61,7 @@ def build_prompt(
             "role": principal.role,
             "scope": principal.scope,
         },
-        "schema": {"version": SCHEMA_VERSION, "postgresql_ddl": SCHEMA_SQL},
+        "schema": {"version": SCHEMA_VERSION, "postgresql_ddl": SCHEMA_SQL, "hints": SCHEMA_HINTS},
         "retrieved_context": {
             "profile": context_profile,
             "trust": "untrusted_data",
@@ -60,4 +78,3 @@ def build_prompt(
         version=version,
         content_hash=content_hash,
     )
-
