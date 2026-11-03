@@ -6,7 +6,7 @@
 
 ## 1. 一句话
 
-A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连、固定 SQL 回放和 v3 提示词已完成。C 的正式网关、审计和前端结果面板已接入。本机原生 Ollama 实测 `100% GPU`；Python 3.12.10 下 C/TestClient 回归通过。
+A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连、固定 SQL 回放和 v3 提示词已完成。C 的正式网关、审计和前端结果面板已接入。本机原生 Ollama 实测 `100% GPU`；Python 3.13.5 下 C/TestClient 回归通过。
 
 ## 2. 完成度
 
@@ -14,7 +14,7 @@ A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编�
 | --- | --- | --- | --- |
 | A | ✅ | Schema/Prompt v3、Mock、查询编排、实验室直连、固定回放、全量 E4 重跑（18/20） | 无 |
 | B | ✅ | 建表/角色/RLS/列权限/种子数据、74 项回归、E0–E4 正式结果人工复核（E4 18/20） | 无；Schema 变更需先升版本 |
-| C | ✅ | SQLGlot 策略、hardened 只读执行、MASK/限行、audit.events、前端安全查询、27 项回归 | 无代码阻塞；Python 3.13/AnyIO 环境可选择复跑 |
+| C | ✅ | SQLGlot 策略、hardened 只读执行、MASK/限行、audit.events、前端安全查询、27 项回归 | 无 |
 
 ## 3. 当前可用接口
 
@@ -58,7 +58,7 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 | 项目 | 结果 |
 | --- | --- |
 | 全套 `pytest` | **219 passed / 8 skipped**（共 227 项） |
-| C 单元/前端回归 | **27 passed**（本机 Python 3.12.10；策略、执行、审计、前端） |
+| C 单元/前端回归 | **27 passed**（本机 Python 3.13.5；策略、执行、审计、前端） |
 | Ollama placement | **100% GPU**（RTX 4060 Laptop，11435，2026-11-02） |
 | A 离线测试 | **80 passed** |
 | `tests/db + tests/attacks` | **74 passed** |

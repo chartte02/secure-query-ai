@@ -46,7 +46,7 @@ B-1. 语义标注 → 最终数字定稿 — 已完成（2026-11-03）
 成员 C — 已完成（2026-11-03）
 
 - [x] `RealGateway`、`sql_policy`、`audit_writer`、前端安全查询已合入
-- [x] C gate 27 passed（策略/执行/审计/前端，本机 Python 3.12.10）；加 query_route 共 37 passed
+- [x] C gate 27 passed（策略/执行/审计/前端，本机 Python 3.13.5）；加 query_route 共 37 passed
 - [x] `ollama ps` 实测 `100% GPU`（RTX 4060 Laptop，2026-11-02）
 - [x] 默认 `SECUREQUERY_FORMAL_GATEWAY=false`，正式路径需显式开启
-- [ ] 可选：在 Python 3.13/AnyIO 环境复跑 TestClient 生命周期测试（本机 3.12 已通过）
+- [x] 可选：在 Python 3.13/AnyIO 环境复跑 TestClient 生命周期测试（本机 3.13.5 已通过）

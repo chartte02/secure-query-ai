@@ -8,7 +8,7 @@
 
 项目已经完成 A/B 基础工作线和 C 正式网关主线；Pre 截图/录屏仍需整理。
 
-> 2026-11-02 晚补测：Windows 原生 Ollama `11435` 已显示 **100% GPU**（RTX 4060 Laptop）；本文此前的 WSL CPU fallback 记录保留为历史。Python 3.12.10 下 C 回归为 27 passed。
+> 2026-11-02 晚补测：Windows 原生 Ollama `11435` 已显示 **100% GPU**（RTX 4060 Laptop）；本文此前的 WSL CPU fallback 记录保留为历史。Python 3.13.5 下 C 回归为 27 passed。
 
 | 模块 | 当前状态 | 说明 |
 | --- | --- | --- |
