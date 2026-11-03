@@ -255,7 +255,7 @@ class OllamaSqlGenerator:
                 "temperature": 0,
                 "seed": 42,
                 "num_predict": 512,
-                "num_ctx": 4096,
+                "num_ctx": 8192,
             },
             "keep_alive": "10m",
         }

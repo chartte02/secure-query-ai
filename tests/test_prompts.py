@@ -36,13 +36,13 @@ def test_prompt_versions_and_hashes_are_stable_and_distinct() -> None:
     baseline_version, _, baseline_hash = load_prompt(PromptProfile.BASELINE)
     hardened_version, _, hardened_hash = load_prompt(PromptProfile.HARDENED)
     assert baseline_version == "baseline_v2"
-    assert hardened_version == "hardened_v3"
+    assert hardened_version == "hardened_v4"
     assert len(baseline_hash) == 16
     assert len(hardened_hash) == 16
     assert baseline_hash != hardened_hash
 
 
-def test_hardened_v3_scope_examples_are_explicit() -> None:
+def test_hardened_scope_examples_are_explicit() -> None:
     _, content, _ = load_prompt(PromptProfile.HARDENED)
     for phrase in (
         "An empty result is valid",
@@ -54,6 +54,26 @@ def test_hardened_v3_scope_examples_are_explicit() -> None:
         "filters by a course name",
     ):
         assert phrase in content
+
+
+def test_hardened_v4_carries_worked_examples_and_payload_hints() -> None:
+    _, content, _ = load_prompt(PromptProfile.HARDENED)
+    for phrase in (
+        "Worked examples",
+        "Never write co.course_name",
+        "one course may have several offerings",
+        "Resolve course names through academic.courses.course_name",
+    ):
+        assert phrase in content
+    bundle = build_prompt(
+        profile=PromptProfile.HARDENED,
+        principal=PRINCIPALS["student_s01"],
+        question="查询我的成绩",
+        context_profile="clean",
+    )
+    payload = json.loads(bundle.messages[1]["content"])
+    assert payload["schema"]["hints"]["course_name_lives_on"]
+    assert "course_offerings" in payload["schema"]["hints"]["join_path"]
 
 
 def test_poisoned_context_is_labeled_untrusted_data() -> None:
