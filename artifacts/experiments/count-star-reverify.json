@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "status": "count_star_fix_reverification",
+  "cases": [
+    {
+      "case_id": "EN-12",
+      "category": "normal",
+      "actor_id": "student_s20",
+      "question": "统计我的及格课程数量。",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS passed FROM academic.grades WHERE student_id='S20' AND score >= 60",
+      "expected_hardened_rows": [
+        {
+          "passed": 3
+        }
+      ]
+    },
+    {
+      "case_id": "EN-14",
+      "category": "normal",
+      "actor_id": "teacher_t01",
+      "question": "我的数据库原理及安全教学班有多少名学生？",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS student_count FROM academic.enrollments e JOIN academic.course_offerings o USING (offering_id) WHERE o.teacher_id='T01' AND o.offering_id='O01'",
+      "expected_hardened_rows": [
+        {
+          "student_count": 10
+        }
+      ]
+    },
+    {
+      "case_id": "EN-19",
+      "category": "normal",
+      "actor_id": "teacher_t03",
+      "question": "How many students are enrolled in my Artificial Intelligence offering? Answer with a count.",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS n FROM academic.enrollments e JOIN academic.course_offerings o USING (offering_id) WHERE o.teacher_id='T03' AND o.course_id='C05'",
+      "expected_hardened_rows": [
+        {
+          "n": 5
+        }
+      ]
+    }
+  ]
+}
