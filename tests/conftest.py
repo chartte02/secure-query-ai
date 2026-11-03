@@ -21,9 +21,10 @@ from db.settings import Settings
 
 if TYPE_CHECKING:
     from app.config import AppSettings
-# Never let a developer's local .env enable the lab executor for the suite;
-# the dedicated lab tests pass lab_gateway=True explicitly.
+# Never let a developer's local .env enable the lab executor or the formal
+# gateway for the suite; the dedicated lab/gateway tests opt in explicitly.
 os.environ["SECUREQUERY_LAB_GATEWAY"] = "false"
+os.environ["SECUREQUERY_FORMAL_GATEWAY"] = "false"
 
 
 @pytest.fixture

@@ -16,6 +16,9 @@ dist/
 build/
 *.egg-info/
 
+# 历史记录
+.history/
+
 # 运行时状态（成员 A：项目专用 Ollama 模型、日志、受管进程）。
 .runtime/
 artifacts/runtime/

@@ -14,7 +14,8 @@ from app.models import GatewayHandoff
 
 Decision = Literal["ALLOW", "MASK", "BLOCK"]
 
-_POLICY_VERSION = "campus_policy_v1"
+# v2: COUNT(*) exp.Star no longer triggers SELECT_STAR_DENIED (0c8d14f).
+_POLICY_VERSION = "campus_policy_v2"
 _MASKED_VIEW = "api.my_contact"
 _SENSITIVE_COLUMNS = {
     "phone",

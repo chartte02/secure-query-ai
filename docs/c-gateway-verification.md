@@ -113,6 +113,6 @@ timeout 30s .venv/bin/python -c 'import json; from fastapi.testclient import Tes
 
 ## 未完成或限制
 
-- 当前环境的 `TestClient` 在 Python 3.13/AnyIO 生命周期入口挂起，API live 验收改用 ASGI 直连；这不是成功测试，应在标准运行环境补跑完整 HTTP 测试。
-- GPU 加速仍需排查 Ollama 服务安装/运行配置；GPU 硬件可见不等于 Ollama 已使用 GPU。
+- 当前环境的 `TestClient` 在 Python 3.13/AnyIO 生命周期入口挂起，API live 验收改用 ASGI 直连；本机 Python 3.12.10 已补跑 C 回归 **27 passed**，3.13 环境仍可选择复跑。
+- GPU：本文的 WSL 记录为 CPU fallback；2026-11-02 晚 Windows 原生 Ollama `11435` 实测 **100% GPU**（RTX 4060 Laptop）。GPU 硬件可见不等于所有服务都已使用 GPU，仍需用 `ollama ps` 验证。
 - 模型生成统计、模型拒答和固定 SQL 回放不能替代正式网关的安全指标。

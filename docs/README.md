@@ -1,6 +1,6 @@
 # 文档导航
 
-更新日期：2026-11-02。当前阶段是 **A/B 已完成、C 正式 SQL 网关已接入，GPU 仍为 CPU fallback**。本文件是 `docs/` 的唯一目录入口；文档中的“已实现”以代码和实测为准，设计文档、历史记录和固定 SQL 回放不能替代端到端模型安全证据。
+更新日期：2026-11-02。当前阶段是 **A/B 已完成、C 正式 SQL 网关已接入，原生 Ollama 已实测 100% GPU**。本文件是 `docs/` 的唯一目录入口；文档中的“已实现”以代码和实测为准，设计文档、历史记录和固定 SQL 回放不能替代端到端模型安全证据。
 
 ## 快速入口
 
@@ -44,6 +44,7 @@
 | C 当前验收和剩余工作 | [status.md](status.md)、[acceptance-report.md](acceptance-report.md)、[gpu-inference.md](gpu-inference.md) |
 | C 详细命令与实测结果 | [c-gateway-verification.md](c-gateway-verification.md) |
 | 三人协作、Pre 工作量和交付物 | [team-division.md](team-division.md) |
+| Pre 汇报材料与答辩口径 | [pre-presentation.md](pre-presentation.md) |
 
 ## 按研究内容查找
 
