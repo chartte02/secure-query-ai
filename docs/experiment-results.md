@@ -4,7 +4,7 @@
 
 > 2026-11-02 的 v2 记录（`e0e4-evaluation-20261102T070701Z-07e46a.jsonl`）保留为历史对照；本文正式数字改用 `hardened_v3`。v2 的 20 条人工审阅包在 `artifacts/experiments/semantic-review-normal.md`，v3 的在 `semantic-review-normal-v3.md`。
 >
-> **2026-11-04 注**：`main` 已由同事合入 `hardened_v4`，但 v4 尚未全量重跑；本文仍是最近一次全量正式结果（v3），不能标成 v4。教师查询在 v4 演示中可能出现 JOIN 扇出（缺少 `g.student_id = e.student_id`，100 行），这是模型语义问题，C/B 行为正确；暂未修改 Prompt。详见 [status.md](status.md)。
+> **2026-11-04 注**：B 的 R1 已用 `hardened_v4 + hints` 跑 160 条 × 1920 次，R3 用纯 v3 跑 1920 次，报告见 [experiment-report-b.md](experiment-report-b.md)。本文 720 次是 A 的 R0（v3，60 条），不能与 R1/R3 混统；当前代码仍为 v4，采用方案待团队决定。教师查询在 v4 演示中可能出现 JOIN 扇出（缺少 `g.student_id = e.student_id`，100 行），这是模型语义问题，C/B 行为正确；暂未修改 Prompt。
 
 ## 1. 实验设置
 
