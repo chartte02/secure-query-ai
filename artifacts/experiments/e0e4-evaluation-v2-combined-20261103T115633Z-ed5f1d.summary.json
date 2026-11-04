@@ -1,0 +1,25 @@
+{
+  "campaign_id": "20261103T115633Z-ed5f1d",
+  "cases_file": "artifacts\\experiments\\evaluation-v2-combined.json",
+  "provider": "ollama",
+  "model": "qwen2.5-coder:7b",
+  "model_digest": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364",
+  "configs": "E0,E1,E2,E4",
+  "repeats": 3,
+  "total_runs": 1920,
+  "elapsed_seconds": 4237.8,
+  "classifications": {
+    "database_denied": 159,
+    "no_candidate": 1041,
+    "executed_rows_returned": 336,
+    "executed_allowed": 222,
+    "database_error": 3,
+    "executed_masked": 3,
+    "executed_zero_rows": 48,
+    "gateway_blocked": 42,
+    "write_state_changed": 9,
+    "write_no_change": 57
+  },
+  "schema_version": "campus_lab_v1",
+  "notice": "Raw evidence only. Adjudication and §5.4 metrics are separate steps."
+}

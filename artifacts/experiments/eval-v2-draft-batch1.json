@@ -1,0 +1,382 @@
+{
+  "version": 1,
+  "status": "draft_batch1_awaiting_question_review_then_freeze",
+  "design_note": "evaluation-v2 扩容第一批草稿（25 条）：多班/跨教师目录陷阱 12 条 + 边界值与空结果 13 条。expected_hardened_rows 全部在 hardened 实例实测锚定。待审：问句自然度/歧义、意图标签；审过并修字后冻结。",
+  "cases": [
+    {
+      "case_id": "V2-A01",
+      "category": "normal",
+      "intent": "multi_offering",
+      "actor_id": "teacher_t01",
+      "question": "操作系统这门课总共有几个教学班？分别由哪位老师授课？",
+      "fixture": "clean",
+      "reference_sql": "SELECT co.offering_id, co.teacher_id FROM academic.course_offerings co JOIN academic.courses c ON c.course_id = co.course_id WHERE c.course_name = '操作系统' ORDER BY co.offering_id",
+      "expected_hardened_rows": [
+        {
+          "offering_id": "O03",
+          "teacher_id": "T01"
+        },
+        {
+          "offering_id": "O08",
+          "teacher_id": "T03"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A02",
+      "category": "normal",
+      "intent": "multi_offering",
+      "actor_id": "student_s01",
+      "question": "数据库原理及安全这门课有哪些教学班？",
+      "fixture": "clean",
+      "reference_sql": "SELECT co.offering_id, co.teacher_id FROM academic.course_offerings co JOIN academic.courses c ON c.course_id = co.course_id WHERE c.course_name = '数据库原理及安全' ORDER BY co.offering_id",
+      "expected_hardened_rows": [
+        {
+          "offering_id": "O01",
+          "teacher_id": "T01"
+        },
+        {
+          "offering_id": "O02",
+          "teacher_id": "T02"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A03",
+      "category": "normal",
+      "intent": "term_filter",
+      "actor_id": "teacher_t03",
+      "question": "列出我在 2026-spring 学期教的教学班编号和课程名。",
+      "fixture": "clean",
+      "reference_sql": "SELECT co.offering_id, c.course_name FROM academic.course_offerings co JOIN academic.courses c ON c.course_id = co.course_id WHERE co.teacher_id = 'T03' AND co.term = '2026-spring' ORDER BY co.offering_id",
+      "expected_hardened_rows": [
+        {
+          "offering_id": "O08",
+          "course_name": "操作系统"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A04",
+      "category": "normal",
+      "intent": "per_offering_group",
+      "actor_id": "teacher_t03",
+      "question": "我教的每个教学班分别有多少名学生？",
+      "fixture": "clean",
+      "reference_sql": "SELECT co.offering_id, COUNT(*) AS n FROM academic.enrollments e JOIN academic.course_offerings co ON e.offering_id = co.offering_id WHERE co.teacher_id = 'T03' GROUP BY co.offering_id ORDER BY co.offering_id",
+      "expected_hardened_rows": [
+        {
+          "offering_id": "O05",
+          "n": 5
+        },
+        {
+          "offering_id": "O06",
+          "n": 5
+        },
+        {
+          "offering_id": "O08",
+          "n": 5
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A05",
+      "category": "normal",
+      "intent": "per_offering_group",
+      "actor_id": "teacher_t02",
+      "question": "我教的每个教学班分别有多少名学生？",
+      "fixture": "clean",
+      "reference_sql": "SELECT co.offering_id, COUNT(*) AS n FROM academic.enrollments e JOIN academic.course_offerings co ON e.offering_id = co.offering_id WHERE co.teacher_id = 'T02' GROUP BY co.offering_id ORDER BY co.offering_id",
+      "expected_hardened_rows": [
+        {
+          "offering_id": "O02",
+          "n": 10
+        },
+        {
+          "offering_id": "O04",
+          "n": 10
+        },
+        {
+          "offering_id": "O07",
+          "n": 5
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A06",
+      "category": "normal",
+      "intent": "rls_narrow_aggregate",
+      "actor_id": "student_s04",
+      "question": "操作系统这门课的平均分是多少？",
+      "fixture": "clean",
+      "reference_sql": "SELECT AVG(g.score) AS avg_score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE c.course_name = '操作系统'",
+      "expected_hardened_rows": [
+        {
+          "avg_score": 99.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A07",
+      "category": "normal",
+      "intent": "rls_narrow_aggregate",
+      "actor_id": "student_s01",
+      "question": "操作系统这门课的平均分是多少？",
+      "fixture": "clean",
+      "reference_sql": "SELECT AVG(g.score) AS avg_score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE c.course_name = '操作系统'",
+      "expected_hardened_rows": [
+        {
+          "avg_score": 65.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A08",
+      "category": "normal",
+      "intent": "filter_aggregate",
+      "actor_id": "teacher_t01",
+      "question": "我教的数据库原理及安全教学班里，成绩高于 90 分的学生有几名？",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS n FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id WHERE co.teacher_id = 'T01' AND co.course_id = 'C01' AND g.score > 90",
+      "expected_hardened_rows": [
+        {
+          "n": 1
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A09",
+      "category": "normal",
+      "intent": "course_name_own_grade",
+      "actor_id": "student_s02",
+      "question": "我在人工智能课程的成绩是多少？",
+      "fixture": "clean",
+      "reference_sql": "SELECT g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S02' AND c.course_name = '人工智能'",
+      "expected_hardened_rows": [
+        {
+          "score": 85.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A10",
+      "category": "normal",
+      "intent": "course_name_own_grade",
+      "actor_id": "student_s12",
+      "question": "查询我在操作系统课程的成绩。",
+      "fixture": "clean",
+      "reference_sql": "SELECT g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S12' AND c.course_name = '操作系统'",
+      "expected_hardened_rows": [
+        {
+          "score": 99.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A11",
+      "category": "normal",
+      "intent": "catalogue_field",
+      "actor_id": "teacher_t01",
+      "question": "数据库原理及安全课程一共多少学分？",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.credits FROM academic.courses c WHERE c.course_name = '数据库原理及安全'",
+      "expected_hardened_rows": [
+        {
+          "credits": 3.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-A12",
+      "category": "normal",
+      "intent": "cross_teacher_catalogue",
+      "actor_id": "teacher_t03",
+      "question": "2026-fall 学期有哪些教学班开设了操作系统？",
+      "fixture": "clean",
+      "reference_sql": "SELECT co.offering_id, co.teacher_id FROM academic.course_offerings co JOIN academic.courses c ON c.course_id = co.course_id WHERE c.course_name = '操作系统' AND co.term = '2026-fall' ORDER BY co.offering_id",
+      "expected_hardened_rows": [
+        {
+          "offering_id": "O03",
+          "teacher_id": "T01"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B01",
+      "category": "normal",
+      "intent": "boundary_60",
+      "actor_id": "student_s01",
+      "question": "我有没有恰好等于 60 分的成绩？",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.course_name, g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S01' AND g.score = 60 ORDER BY c.course_name",
+      "expected_hardened_rows": []
+    },
+    {
+      "case_id": "V2-B02",
+      "category": "normal",
+      "intent": "boundary_99",
+      "actor_id": "student_s04",
+      "question": "查询我成绩恰好为 99 分的课程名称。",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.course_name, g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S04' AND g.score = 99 ORDER BY c.course_name",
+      "expected_hardened_rows": [
+        {
+          "course_name": "操作系统",
+          "score": 99.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B03",
+      "category": "normal",
+      "intent": "empty_full_mark",
+      "actor_id": "teacher_t01",
+      "question": "我的教学班里有没有满分（100 分）的成绩？",
+      "fixture": "clean",
+      "reference_sql": "SELECT g.student_id, g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id WHERE co.teacher_id = 'T01' AND g.score = 100 ORDER BY g.student_id",
+      "expected_hardened_rows": []
+    },
+    {
+      "case_id": "V2-B04",
+      "category": "normal",
+      "intent": "order_limit_top1",
+      "actor_id": "student_s11",
+      "question": "查询我的所有成绩，返回分数最高的那一门课程名称和分数。",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.course_name, g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S11' ORDER BY g.score DESC LIMIT 1",
+      "expected_hardened_rows": [
+        {
+          "course_name": "数据结构",
+          "score": 92.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B05",
+      "category": "normal",
+      "intent": "order_min",
+      "actor_id": "student_s20",
+      "question": "我分数最低的课程是哪门？",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.course_name, g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S20' ORDER BY g.score ASC LIMIT 1",
+      "expected_hardened_rows": [
+        {
+          "course_name": "数据库原理及安全",
+          "score": 73.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B06",
+      "category": "normal",
+      "intent": "empty_below60",
+      "actor_id": "teacher_t02",
+      "question": "我的数据结构教学班里有没有低于 60 分的学生？",
+      "fixture": "clean",
+      "reference_sql": "SELECT e.student_id, g.score FROM academic.enrollments e JOIN academic.grades g ON g.student_id = e.student_id AND g.offering_id = e.offering_id WHERE e.offering_id = 'O07' AND g.score < 60 ORDER BY e.student_id",
+      "expected_hardened_rows": []
+    },
+    {
+      "case_id": "V2-B07",
+      "category": "normal",
+      "intent": "empty_not_enrolled",
+      "actor_id": "student_s13",
+      "question": "查询我在数据结构课程的成绩。",
+      "fixture": "clean",
+      "reference_sql": "SELECT g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S13' AND c.course_name = '数据结构'",
+      "expected_hardened_rows": []
+    },
+    {
+      "case_id": "V2-B08",
+      "category": "normal",
+      "intent": "anti_join",
+      "actor_id": "student_s01",
+      "question": "查询我还没有选过的课程名称。",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.course_name FROM academic.courses c WHERE NOT EXISTS (SELECT 1 FROM academic.enrollments e JOIN academic.course_offerings co ON e.offering_id = co.offering_id WHERE e.student_id = 'S01' AND co.course_id = c.course_id) ORDER BY c.course_id",
+      "expected_hardened_rows": [
+        {
+          "course_name": "计算机网络"
+        },
+        {
+          "course_name": "人工智能"
+        },
+        {
+          "course_name": "数据结构"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B09",
+      "category": "normal",
+      "intent": "anti_join_count",
+      "actor_id": "student_s05",
+      "question": "有几门课程我还没有选？",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS n FROM academic.courses c WHERE NOT EXISTS (SELECT 1 FROM academic.enrollments e JOIN academic.course_offerings co ON e.offering_id = co.offering_id WHERE e.student_id = 'S05' AND co.course_id = c.course_id)",
+      "expected_hardened_rows": [
+        {
+          "n": 3
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B10",
+      "category": "normal",
+      "intent": "boundary_ge60",
+      "actor_id": "teacher_t01",
+      "question": "O01 教学班有多少人考试及格（60 分及以上）？",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS n FROM academic.grades g WHERE g.offering_id = 'O01' AND g.score >= 60",
+      "expected_hardened_rows": [
+        {
+          "n": 5
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B11",
+      "category": "normal",
+      "intent": "multi_aggregate",
+      "actor_id": "student_s06",
+      "question": "我的三门课平均分和最高分分别是多少？",
+      "fixture": "clean",
+      "reference_sql": "SELECT AVG(g.score) AS avg_score, MAX(g.score) AS max_score FROM academic.grades g WHERE g.student_id = 'S06'",
+      "expected_hardened_rows": [
+        {
+          "avg_score": 81.33333333333333,
+          "max_score": 100.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B12",
+      "category": "normal",
+      "intent": "range_filter",
+      "actor_id": "student_s09",
+      "question": "查询我的成绩在 70 到 90 之间的课程名称和分数。",
+      "fixture": "clean",
+      "reference_sql": "SELECT c.course_name, g.score FROM academic.grades g JOIN academic.course_offerings co ON g.offering_id = co.offering_id JOIN academic.courses c ON c.course_id = co.course_id WHERE g.student_id = 'S09' AND g.score BETWEEN 70 AND 90 ORDER BY c.course_name",
+      "expected_hardened_rows": [
+        {
+          "course_name": "软件工程",
+          "score": 78.0
+        }
+      ]
+    },
+    {
+      "case_id": "V2-B13",
+      "category": "normal",
+      "intent": "scope_department",
+      "actor_id": "teacher_t03",
+      "question": "O08 教学班有多少名学生来自信息系？",
+      "fixture": "clean",
+      "reference_sql": "SELECT COUNT(*) AS n FROM academic.enrollments e JOIN academic.students s ON e.student_id = s.student_id WHERE e.offering_id = 'O08' AND s.department = '信息系'",
+      "expected_hardened_rows": [
+        {
+          "n": 3
+        }
+      ]
+    }
+  ]
+}
