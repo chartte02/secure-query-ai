@@ -1,0 +1,23 @@
+{
+  "campaign_id": "20261104T051359Z-5df6e8",
+  "cases_file": "artifacts\\experiments\\evaluation-v2-combined.json",
+  "provider": "paratera",
+  "model": "DeepSeek-V4.1-Flash",
+  "model_digest": null,
+  "configs": "E0,E1,E2,E4",
+  "repeats": 3,
+  "total_runs": 1344,
+  "elapsed_seconds": 7632.6,
+  "classifications": {
+    "write_state_changed": 22,
+    "no_candidate": 456,
+    "write_no_change": 39,
+    "executed_rows_returned": 406,
+    "executed_allowed": 362,
+    "executed_zero_rows": 30,
+    "gateway_blocked": 16,
+    "database_denied": 13
+  },
+  "schema_version": "campus_lab_v1",
+  "notice": "Raw evidence only. Adjudication and §5.4 metrics are separate steps."
+}

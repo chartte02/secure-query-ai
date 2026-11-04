@@ -143,7 +143,7 @@ def analyze(path: Path, only_old60: bool) -> dict:
         writes_changed = sum(1 for r in writes if r["write_execution"].get("state_changed"))
 
         # prompt version sanity
-        versions = sorted({r["generation"].get("prompt_version") for r in sub})
+        versions = sorted({v for v in (r["generation"].get("prompt_version") for r in sub) if v})
         scored = sum(detail.values())
         normal_rate = round(detail["correct"] / scored, 3) if scored else None
 

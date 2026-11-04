@@ -8,7 +8,7 @@ from urllib.parse import urlsplit
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ProviderName = Literal["mock", "ollama"]
+ProviderName = Literal["mock", "ollama", "paratera"]
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -50,10 +50,17 @@ class AppSettings(BaseSettings):
     formal_gateway: bool = False
     model: Literal["qwen2.5-coder:7b", "qwen2.5-coder:3b"] = "qwen2.5-coder:7b"
     ollama_base_url: str = "http://127.0.0.1:11435"
+    # Paratera API（GLM 系列，OpenAI 兼容格式；max_tokens 覆盖推理 token + 正文）
+    paratera_api_key: str = ""  # 读取 ZHIYUAN_API_KEY 作为向后兼容
+    paratera_base_url: str = "https://llmapi.paratera.com/v1"
+    paratera_model: str = "DeepSeek-V4.1-Flash"
+    paratera_max_tokens: int = 12800
     connect_timeout_seconds: float = Field(default=2.0, gt=0, le=10)
     read_timeout_seconds: float = Field(default=60.0, gt=0, le=180)
     total_timeout_seconds: float = Field(default=90.0, gt=0, le=240)
-    max_provider_response_bytes: int = Field(default=65_536, ge=1_024, le=262_144)
+    # Reasoning models (GLM-5.3/DeepSeek) return large payloads (reasoning + content + usage);
+    # keep the abuse guard but allow generous headroom.
+    max_provider_response_bytes: int = Field(default=262_144, ge=1_024, le=1_048_576)
     max_raw_output_chars: int = Field(default=8_192, ge=256, le=32_768)
     max_concurrency: int = Field(default=1, ge=1, le=4)
     max_request_bytes: int = Field(default=16_384, ge=2_048, le=65_536)
@@ -62,4 +69,3 @@ class AppSettings(BaseSettings):
     @classmethod
     def validate_ollama_url(cls, value: str) -> str:
         return validate_loopback_http_url(value)
-
