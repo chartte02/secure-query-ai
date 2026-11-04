@@ -16,7 +16,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from app.audit_writer import AuditWriter, DatabaseAuditWriter
 from app.catalog import SCHEMA_VERSION, public_catalog
 from app.config import AppSettings
-from app.gateway import GatewayUnavailable, NotConnectedGateway, SqlGateway
+from app.gateway import GatewayOutcome, GatewayUnavailable, NotConnectedGateway, SqlGateway
 from app.models import (
     GatewayHandoff,
     GenerationRequest,
@@ -39,6 +39,14 @@ from app.service import GenerationService
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
+
+
+def _replay_status(outcome: GatewayOutcome) -> str:
+    if outcome.decision.decision == "BLOCK":
+        return "blocked"
+    if outcome.error is not None:
+        return "error"
+    return "executed"
 
 
 def _error_response(request: Request, status_code: int, code: str, message: str) -> JSONResponse:
@@ -208,7 +216,10 @@ def create_app(
             "ollama_url": resolved_settings.ollama_base_url,
             "gateway_connected": query_service.gateway_connected,
             # The generation service still holds no database credentials.
-            "database_connected": query_service.executor == "lab_direct",
+            # The database is reachable when either the formal gateway or the
+            # demo-only lab executor is active.
+            "database_connected": query_service.gateway_connected
+            or query_service.executor == "lab_direct",
             "executor": query_service.executor,
         }
         catalog["prompt_versions"] = [
@@ -235,6 +246,37 @@ def create_app(
             return JSONResponse(status_code=503, content=result.model_dump(mode="json"))
         return result
 
+    async def _replay_fixed(
+        request: Request, scenario_id: str
+    ) -> LabReplayResponse | JSONResponse:
+        from app.lab_gateway import LAB_SCENARIOS
+
+        scenario = LAB_SCENARIOS.get(scenario_id)
+        if scenario is None:
+            return _error_response(request, 404, "unknown_scenario", "Unknown scenario.")
+        outcome = await query_service.gateway.inspect_and_execute(
+            GatewayHandoff(
+                request_id=request.state.request_id,
+                principal_id=scenario.principal_id,
+                candidate_sql=scenario.sql,
+                schema_version=SCHEMA_VERSION,
+            )
+        )
+        return LabReplayResponse(
+            request_id=request.state.request_id,
+            scenario_id=scenario_id,
+            label=scenario.label,
+            expectation=scenario.expectation,
+            principal_id=scenario.principal_id,
+            candidate_sql=scenario.sql,
+            status=_replay_status(outcome),
+            executor=query_service.executor,  # type: ignore[arg-type]
+            gateway=outcome.decision,
+            result=outcome.result,
+            error=outcome.error,
+            db_role=outcome.db_role,
+        )
+
     @application.get("/api/v1/lab/scenarios")
     async def lab_scenarios() -> dict[str, object]:
         if query_service.executor != "lab_direct":
@@ -256,36 +298,10 @@ def create_app(
     async def lab_replay(
         request: Request, scenario_id: str
     ) -> LabReplayResponse | JSONResponse:
-        """Replay a fixed synthetic SQL to show member B's controls. No model call."""
+        """Replay a fixed synthetic SQL in the lab-only direct executor."""
         if query_service.executor != "lab_direct":
             raise PermissionError("lab gateway is disabled")
-        from app.lab_gateway import LAB_SCENARIOS
-
-        scenario = LAB_SCENARIOS.get(scenario_id)
-        if scenario is None:
-            return _error_response(
-                request, 404, "unknown_scenario", "Unknown lab scenario."
-            )
-        outcome = await query_service.gateway.inspect_and_execute(
-            GatewayHandoff(
-                request_id=request.state.request_id,
-                principal_id=scenario.principal_id,
-                candidate_sql=scenario.sql,
-                schema_version=SCHEMA_VERSION,
-            )
-        )
-        return LabReplayResponse(
-            request_id=request.state.request_id,
-            scenario_id=scenario_id,
-            label=scenario.label,
-            expectation=scenario.expectation,
-            principal_id=scenario.principal_id,
-            candidate_sql=scenario.sql,
-            gateway=outcome.decision,
-            result=outcome.result,
-            error=outcome.error,
-            db_role=outcome.db_role,
-        )
+        return await _replay_fixed(request, scenario_id)
 
     application.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
 

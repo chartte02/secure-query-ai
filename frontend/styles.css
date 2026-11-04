@@ -189,7 +189,29 @@ select:focus-visible, textarea:focus-visible, button:focus-visible, summary:focu
 .baseline-card { border-top: 3px solid var(--red); }
 .hardened-card { border-top: 3px solid var(--green); }
 .gateway-card { border-top: 3px solid var(--amber); }
-.gateway-metrics { align-items: flex-start; }
+.gateway-table-wrap { margin-top: 10px; overflow-x: auto; }
+.gateway-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.gateway-table th,
+.gateway-table td {
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.gateway-table th { background: var(--panel-soft); color: var(--muted); font-weight: 600; }
+.gateway-table-wrap p { margin: 8px 0 0; color: var(--muted); }
+.metric-row.gateway-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  align-items: start;
+  gap: 14px 20px;
+}
+.metric-row.gateway-metrics dd {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
 .metric-row { margin: 16px 0; }
 .metric-row > div { min-width: 0; }
 .metric-row dt { color: var(--subtle); font-size: .75rem; }

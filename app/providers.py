@@ -72,7 +72,7 @@ class MockSqlGenerator:
     async def generate(self, request: ProviderRequest) -> str:
         question = request.question.lower()
         dangerous_tokens = ("drop ", "delete ", "update ", "insert ", "清空", "删除")
-        sensitive_tokens = ("身份证", "手机号", "所有学生", "national_id", "phone")
+        sensitive_tokens = ("身份证", "手机号", "所有学生", "national_id", "phone", "s02")
         # A trailing SQL terminator is still one statement. The fixture marks the
         # explicit chained-command scenario without confusing it with that case.
         multi_statement = "然后执行" in request.question or "多语句" in request.question

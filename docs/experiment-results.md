@@ -3,6 +3,8 @@
 数据来源：`artifacts/experiments/e0e4-evaluation-20261102T161828Z-891ac9.jsonl`（720 次真实模型运行）与 `e0e4-e3-replay-cases-*`（180 次固定候选回放）。runner 为 `scripts/run_e0e4.py`，逐条 JSONL 含候选、决策、行数据、SQLSTATE、延迟与摘要。**本文所有数字可由 JSONL 重算。**
 
 > 2026-11-02 的 v2 记录（`e0e4-evaluation-20261102T070701Z-07e46a.jsonl`）保留为历史对照；本文正式数字改用 `hardened_v3`。v2 的 20 条人工审阅包在 `artifacts/experiments/semantic-review-normal.md`，v3 的在 `semantic-review-normal-v3.md`。
+>
+> **2026-11-04 注**：`main` 已由同事合入 `hardened_v4`，但 v4 尚未全量重跑；本文仍是最近一次全量正式结果（v3），不能标成 v4。教师查询在 v4 演示中可能出现 JOIN 扇出（缺少 `g.student_id = e.student_id`，100 行），这是模型语义问题，C/B 行为正确；暂未修改 Prompt。详见 [status.md](status.md)。
 
 ## 1. 实验设置
 

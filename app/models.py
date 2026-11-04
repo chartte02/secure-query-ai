@@ -148,7 +148,7 @@ class QueryResponse(StrictModel):
 
 
 class LabReplayResponse(StrictModel):
-    """Fixed-SQL replay for observing member B's controls. The model is not invoked."""
+    """Fixed-SQL replay for observing gateway/database controls. The model is not invoked."""
 
     request_id: str
     scenario_id: str
@@ -157,7 +157,8 @@ class LabReplayResponse(StrictModel):
     principal_id: str
     candidate_origin: Literal["fixed_sql_replay"] = "fixed_sql_replay"
     model_invoked: bool = False
-    executor: Literal["lab_direct"] = "lab_direct"
+    status: Literal["executed", "blocked", "error"]
+    executor: Literal["gateway", "lab_direct"] = "lab_direct"
     candidate_sql: str
     gateway: QueryGatewayDecision | None = None
     result: QueryResult | None = None
@@ -165,8 +166,20 @@ class LabReplayResponse(StrictModel):
     db_role: str | None = None
 
     @model_validator(mode="after")
-    def require_exactly_one_outcome(self) -> LabReplayResponse:
-        if (self.result is None) == (self.error is None):
-            raise ValueError("exactly one of result or error must be present")
+    def require_consistent_outcome(self) -> LabReplayResponse:
+        if self.status == "blocked":
+            if (
+                self.gateway is None
+                or self.gateway.decision != "BLOCK"
+                or self.result is not None
+                or self.error is not None
+            ):
+                raise ValueError("blocked replay requires a BLOCK decision and no result/error")
+        elif self.status == "error":
+            if self.gateway is None or self.error is None or self.result is not None:
+                raise ValueError("error replay requires a decision and an error")
+        else:
+            if self.gateway is None or self.result is None or self.error is not None:
+                raise ValueError("executed replay requires a decision and a result")
         return self
 

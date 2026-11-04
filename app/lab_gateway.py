@@ -83,13 +83,38 @@ LAB_SCENARIOS: dict[str, LabScenario] = {
         label="列权限：读取 national_id",
         principal_id="student_s01",
         sql="SELECT national_id FROM academic.students",
-        expectation="error SQLSTATE 42501 database_permission_denied",
+        expectation="C BLOCK COLUMN_DENIED（正式网关）/ SQLSTATE 42501（实验室直连）",
     ),
     "write_denied": LabScenario(
         label="只读：删除成绩",
         principal_id="student_s01",
         sql="DELETE FROM academic.grades WHERE score < 60",
-        expectation="error SQLSTATE 25006 read-only or 42501",
+        expectation="C BLOCK NON_READ_ONLY / SQLSTATE 25006",
+    ),
+    "select_star": LabScenario(
+        label="通配符：SELECT *",
+        principal_id="student_s01",
+        sql="SELECT * FROM academic.grades",
+        expectation="C BLOCK SELECT_STAR_DENIED",
+    ),
+    "multi_statement": LabScenario(
+        label="多语句：SELECT + DROP",
+        principal_id="student_s01",
+        sql="SELECT student_id FROM academic.grades; DROP TABLE academic.grades",
+        expectation="C BLOCK MULTIPLE_STATEMENTS",
+    ),
+    "masked_contact": LabScenario(
+        label="脱敏：api.my_contact",
+        principal_id="student_s01",
+        sql="SELECT student_id, phone_masked FROM api.my_contact",
+        expectation="C MASK MASKED_VIEW",
+    ),
+    "db_error": LabScenario(
+        label="数据库错误：非法 interval",
+        principal_id="student_s01",
+        sql="SELECT student_id FROM academic.enrollments "
+        "WHERE enrolled_at >= CURRENT_DATE - INTERVAL '1 semester'",
+        expectation="C ALLOW，PostgreSQL SQLSTATE 22007",
     ),
     "row_limit": LabScenario(
         label="限行：150 行截断为 100",

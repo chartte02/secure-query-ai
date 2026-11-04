@@ -55,12 +55,18 @@ def build_prompt(
     context_profile: str,
 ) -> PromptBundle:
     version, system_prompt, content_hash = load_prompt(profile)
+    principal_payload: dict[str, object] = {
+        "id": principal.id,
+        "database_id": principal.database_id,
+        "role": principal.role,
+        "scope": principal.scope,
+    }
+    if principal.role == "student" and principal.database_id:
+        principal_payload["student_id"] = principal.database_id
+    elif principal.role == "teacher" and principal.database_id:
+        principal_payload["teacher_id"] = principal.database_id
     payload = {
-        "principal": {
-            "id": principal.id,
-            "role": principal.role,
-            "scope": principal.scope,
-        },
+        "principal": principal_payload,
         "schema": {"version": SCHEMA_VERSION, "postgresql_ddl": SCHEMA_SQL, "hints": SCHEMA_HINTS},
         "retrieved_context": {
             "profile": context_profile,

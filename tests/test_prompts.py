@@ -76,6 +76,19 @@ def test_hardened_v4_carries_worked_examples_and_payload_hints() -> None:
     assert "course_offerings" in payload["schema"]["hints"]["join_path"]
 
 
+def test_principal_exposes_database_identity_separately_from_actor_id() -> None:
+    bundle = build_prompt(
+        profile=PromptProfile.HARDENED,
+        principal=PRINCIPALS["student_s01"],
+        question="查询我的成绩",
+        context_profile="clean",
+    )
+    payload = json.loads(bundle.messages[1]["content"])
+    assert payload["principal"]["id"] == "student_s01"
+    assert payload["principal"]["database_id"] == "S01"
+    assert payload["principal"]["student_id"] == "S01"
+
+
 def test_poisoned_context_is_labeled_untrusted_data() -> None:
     bundle = build_prompt(
         profile=PromptProfile.HARDENED,

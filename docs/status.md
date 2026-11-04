@@ -1,19 +1,19 @@
 # 项目状态与交接
 
-更新日期：2026-11-03。分支：`main`。
+更新日期：2026-11-04。分支：`main`。
 
 > 本文只回答“现在做到哪、还剩什么”。设计与权限细节见 [联调契约](integration.md)、[数据库契约](database-contract.md)；启动和复现见 [Windows 启动指南](windows-guide.md)。进度以本文为准。
 
 ## 1. 一句话
 
-A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连、固定 SQL 回放和 v3 提示词已完成。C 的正式网关、审计和前端结果面板已接入。本机原生 Ollama 实测 `100% GPU`；Python 3.13.5 下 C/TestClient 回归通过。
+A/B 的 Schema 与身份已对齐到 `campus_lab_v1`；A 的生成、查询编排、实验室直连、固定 SQL 回放和 v3 提示词评估已完成。当前 `main` 已由同事合入 `hardened_v4`，但 v4 尚未全量重跑。C 的正式网关、审计和前端结果面板已接入。本机原生 Ollama 实测 `100% GPU`；Python 3.13.5 下 C/TestClient 回归通过。
 
 ## 2. 完成度
 
 | 成员 | 状态 | 已完成 | 未完成 |
 | --- | --- | --- | --- |
-| A | ✅ | Schema/Prompt v3、Mock、查询编排、实验室直连、固定回放、全量 E4 重跑（18/20） | 无 |
-| B | ✅ | 建表/角色/RLS/列权限/种子数据、74 项回归、E0–E4 正式结果人工复核（E4 18/20） | 无；Schema 变更需先升版本 |
+| A | ✅ | Schema/Prompt v3 全量评估（E4 18/20）、Mock、查询编排、实验室直连、固定回放 | 当前代码为 v4，未全量重跑（按需） |
+| B | ✅ | 建表/角色/RLS/列权限/种子数据、74 项回归、E0–E4 正式结果人工复核（v3，E4 18/20） | 无；Schema 变更需先升版本 |
 | C | ✅ | SQLGlot 策略、hardened 只读执行、MASK/限行、audit.events、前端安全查询、27 项回归 | 无 |
 
 ## 3. 当前可用接口
@@ -147,6 +147,14 @@ HTTP：业务结果 200；`unavailable` 为 503；字段校验失败 422。
 | `42501 / 25006` | B 的列权限/只读拒绝，应通过 `error.sqlstate` 展示 |
 | `lab_direct` | A 的实验室直连，不是 C 的网关，不提供策略 |
 | `/api/v1/lab/replay` | 固定 SQL 回放，`model_invoked=false`，不算模型攻击结果 |
+
+### 6.1 已知模型局限与版本差异（2026-11-04）
+
+- **教师查询 JOIN 扇出（未修复）**：示例问题“查询我的学生在《数据库原理及安全》这门课的所有学生姓名，id及成绩”在 `hardened_v4` 下可能生成
+  `JOIN academic.grades g ON e.offering_id = g.offering_id`，缺少 `g.student_id = e.student_id`，把 10 名学生 × 10 条成绩组合成 100 行。C 会 `ALLOW`（策略合规），B 的 RLS 只限制行范围，不修复 JOIN 语义；正确 JOIN 应同时使用 `student_id + offering_id`，修正后返回 10 行。
+- **处理决定**：暂不修改 `hardened_v4`/Prompt 模板，避免打断正式评估口径。建议未来发布 `hardened_v5`，加入“grades 与 enrollments 必须同时按 student_id + offering_id 关联”的规则并重跑评估。
+- **Prompt 版本**：当前 `app/prompts.py` 为 `hardened_v4`（同事提交）；`docs/experiment-results.md` 的正式数字仍是 v3（E4 18/20）。v4 未全量重跑，不能把 v3 数字标成 v4。
+- **A 输入契约**：principal 载荷现显式包含 `database_id` 与角色对应的 `student_id`/`teacher_id`，用于避免模型把 `student_s01` 当成数据库主键；后续评估应使用该载荷。
 
 ## 7. 改动地图
 

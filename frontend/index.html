@@ -30,9 +30,9 @@
       <section class="safety-banner" aria-label="安全声明">
         <span class="banner-mark" aria-hidden="true">!</span>
         <div>
-          <strong>模型输出仅为候选，绝不执行 SQL</strong>
+          <strong>模型输出先经 C 网关独立授权，才可能以只读方式执行</strong>
           <p>当前身份是本地演示夹具，不是真实认证。SQLGlot 诊断也不代表授权通过。</p>
-            <p>当前链路：网页 → A 生成服务 → C 独立网关 → B PostgreSQL。模型输出仍是不可信候选，只有网关决策后才允许执行。</p>
+          <p>当前链路：网页 → A 生成服务 → C 独立网关 → B PostgreSQL。C 的 ALLOW/MASK/BLOCK 与数据库行、RLS 空结果或 SQLSTATE 会显示在下方。</p>
         </div>
       </section>
 
@@ -42,7 +42,7 @@
             <span class="section-index">01</span>
             <h2 id="control-title">配置实验输入</h2>
           </div>
-          <p>两次推理按顺序执行，避免 8GB GPU 并发争抢。</p>
+          <p>基线与安全查询按顺序执行，避免 8GB GPU 并发争抢。</p>
         </div>
 
         <form id="experiment-form" class="control-grid">
@@ -145,16 +145,23 @@
             <div class="gateway-empty">
               <div class="gateway-symbol" aria-hidden="true">C</div>
               <strong id="gateway-summary">等待安全查询</strong>
-              <p>这里显示 ALLOW / MASK / BLOCK、策略原因、审计编号和数据库结果。</p>
+              <p>这里显示 C 的 ALLOW / MASK / BLOCK、策略原因、审计编号，以及 B 的真实行、RLS 空结果或 SQLSTATE。</p>
             </div>
             <dl class="metric-row gateway-metrics">
               <div><dt>决策 / 原因</dt><dd id="gateway-decision" class="mono">—</dd></div>
+              <div><dt>执行器</dt><dd id="gateway-executor" class="mono">—</dd></div>
+              <div><dt>数据库角色</dt><dd id="gateway-db-role" class="mono">—</dd></div>
+              <div><dt>行数</dt><dd id="gateway-rows" class="mono">—</dd></div>
+              <div><dt>脱敏列</dt><dd id="gateway-masked" class="mono">—</dd></div>
+              <div><dt>策略版本</dt><dd id="gateway-policy-version" class="mono">—</dd></div>
+              <div><dt>执行耗时</dt><dd id="gateway-execution" class="mono">—</dd></div>
+              <div><dt>请求 ID</dt><dd id="gateway-request-id" class="mono">—</dd></div>
               <div><dt>审计编号</dt><dd id="gateway-audit" class="mono">—</dd></div>
-              <div><dt>行数 / 执行器</dt><dd id="gateway-rows" class="mono">—</dd></div>
             </dl>
             <section class="output-block">
               <h4>安全查询结果</h4>
               <pre><code id="gateway-result">尚无结果</code></pre>
+              <div id="gateway-table" class="gateway-table-wrap" hidden></div>
             </section>
             <section class="output-block">
               <h4>安全查询载荷</h4>

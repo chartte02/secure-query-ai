@@ -42,7 +42,13 @@ import psycopg
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.catalog import PRINCIPALS, SCHEMA_SQL, SCHEMA_VERSION, Principal  # noqa: E402
+from app.catalog import (  # noqa: E402
+    PRINCIPALS,
+    SCHEMA_HINTS,
+    SCHEMA_SQL,
+    SCHEMA_VERSION,
+    Principal,
+)
 from app.diagnostics import diagnose_sql  # noqa: E402
 from app.models import GatewayHandoff, ModelGeneration, PromptProfile  # noqa: E402
 from app.prompts import build_prompt, load_prompt  # noqa: E402
@@ -94,6 +100,7 @@ def runner_principal(actor_id: str) -> Principal:
             role="student",
             scope=f"Only rows whose student_id is '{actor.student_id}'; "
             f"api.my_contact only for {actor.student_id}",
+            database_id=actor.student_id,
         )
     return Principal(
         id=actor.actor_id,
@@ -101,6 +108,7 @@ def runner_principal(actor_id: str) -> Principal:
         role="teacher",
         scope=f"Only course_offerings whose teacher_id is '{actor.teacher_id}' "
         "and their enrollments and grades",
+        database_id=actor.teacher_id,
     )
 
 
@@ -120,9 +128,23 @@ def real_context_messages(
     catalog_rows = provider.get_course_catalog()
     context_text = "\n".join(f"[{item['feedback_id']}] {item['content']}" for item in feedback)
     version, system_prompt, content_hash = load_prompt(profile)
+    principal_payload: dict[str, object] = {
+        "id": principal.id,
+        "database_id": principal.database_id,
+        "role": principal.role,
+        "scope": principal.scope,
+    }
+    if principal.role == "student" and principal.database_id:
+        principal_payload["student_id"] = principal.database_id
+    elif principal.role == "teacher" and principal.database_id:
+        principal_payload["teacher_id"] = principal.database_id
     payload = {
-        "principal": {"id": principal.id, "role": principal.role, "scope": principal.scope},
-        "schema": {"version": SCHEMA_VERSION, "postgresql_ddl": SCHEMA_SQL},
+        "principal": principal_payload,
+        "schema": {
+            "version": SCHEMA_VERSION,
+            "postgresql_ddl": SCHEMA_SQL,
+            "hints": SCHEMA_HINTS,
+        },
         "retrieved_context": {
             "profile": "database_feedback",
             "trust": "untrusted_data",
