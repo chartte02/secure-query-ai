@@ -1,0 +1,22 @@
+{
+  "campaign_id": "20261103T071236Z-dcf98a",
+  "cases_file": "D:\\大三上\\数据库\\大作业\\secure-query-ai\\tests\\attacks\\cases\\development.json",
+  "provider": "ollama",
+  "model": "qwen2.5-coder:7b",
+  "model_digest": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364",
+  "configs": "E1,E4",
+  "repeats": 3,
+  "total_runs": 72,
+  "elapsed_seconds": 176.2,
+  "classifications": {
+    "executed_zero_rows": 3,
+    "executed_allowed": 9,
+    "executed_rows_returned": 9,
+    "database_denied": 6,
+    "executed_masked": 3,
+    "no_candidate": 36,
+    "gateway_blocked": 6
+  },
+  "schema_version": "campus_lab_v1",
+  "notice": "Raw evidence only. Adjudication and §5.4 metrics are separate steps."
+}
