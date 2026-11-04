@@ -276,6 +276,135 @@ class OllamaSqlGenerator:
 
 
 def create_provider(settings: AppSettings) -> SqlGenerator:
+    if settings.provider == "paratera":
+        return ParateraSqlGenerator(settings)
     if settings.provider == "ollama":
         return OllamaSqlGenerator(settings)
     return MockSqlGenerator()
+
+
+def _strip_markdown_fences(text: str) -> str:
+    """Some chat models wrap JSON in ```json fences; peel them before parsing."""
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        first_newline = stripped.find("\n")
+        if first_newline != -1:
+            stripped = stripped[first_newline + 1 :]
+        if stripped.rstrip().endswith("```"):
+            stripped = stripped.rstrip()[:-3]
+    return stripped.strip()
+
+
+class ParateraSqlGenerator:
+    """Paratera API provider (OpenAI-compatible chat completions, GLM series).
+
+    GLM-5.3 models emit reasoning tokens before the visible content, so
+    max_tokens must cover both; the payload asks for the full configured
+    budget. No rate limiter: Paratera is a commercial API without the
+    campus 10 req/min cap, so we go as fast as the API answers.
+    """
+
+    name = "paratera"
+
+    def __init__(
+        self, settings: AppSettings, *, transport: httpx.AsyncBaseTransport | None = None
+    ) -> None:
+        self.settings = settings
+        self.model = settings.paratera_model
+        if not settings.paratera_api_key:
+            raise ProviderUnavailable(
+                "Paratera API key is required; set SECUREQUERY_PARATERA_API_KEY in .env"
+            )
+        self._client = httpx.AsyncClient(
+            base_url=settings.paratera_base_url,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {settings.paratera_api_key}",
+            },
+            timeout=httpx.Timeout(
+                connect=settings.connect_timeout_seconds,
+                read=settings.read_timeout_seconds,
+                write=10.0,
+                pool=2.0,
+            ),
+            limits=httpx.Limits(
+                max_connections=settings.max_concurrency,
+                max_keepalive_connections=settings.max_concurrency,
+            ),
+            transport=transport,
+            trust_env=False,  # Bypass system proxy; API is directly reachable.
+        )
+        self._semaphore = asyncio.Semaphore(settings.max_concurrency)
+
+    async def _request_json(self, method: str, path: str, json_body: dict | None = None) -> dict:
+        response = await self._client.request(method, path, json=json_body)
+        if response.status_code in (301, 302, 307, 308):
+            raise ProviderUnavailable("Paratera API returned an unexpected redirect")
+        if response.status_code == 429:
+            raise ProviderTimeout("Paratera API rate limit hit; back off and retry")
+        if response.status_code >= 400:
+            raise ProviderUnavailable(
+                f"Paratera API error {response.status_code}: {response.text[:300]}"
+            )
+        if len(response.content) > self.settings.max_provider_response_bytes:
+            raise ProviderResponseTooLarge("Paratera response exceeded the configured limit")
+        try:
+            return response.json()
+        except Exception as exc:
+            raise ProviderUnavailable("Paratera returned invalid JSON") from exc
+
+    async def probe(self) -> ProviderInfo:
+        try:
+            payload = await self._request_json("GET", "/models")
+        except ProviderUnavailable as exc:
+            return ProviderInfo(
+                name=self.name,
+                model=self.model,
+                digest=None,
+                ready=False,
+                detail=f"Paratera API unreachable: {exc}",
+            )
+        models = payload.get("data", [])
+        model_ids = {m.get("id") for m in models if isinstance(m, dict)}
+        if self.model not in model_ids:
+            available = ", ".join(sorted(str(x) for x in model_ids if x))[:200]
+            return ProviderInfo(
+                name=self.name,
+                model=self.model,
+                digest=None,
+                ready=False,
+                detail=f"Model '{self.model}' not in Paratera list; available: {available}",
+            )
+        return ProviderInfo(
+            name=self.name,
+            model=self.model,
+            digest=None,
+            ready=True,
+            detail="Paratera API ready",
+        )
+
+    async def generate(self, request: ProviderRequest) -> str:
+        body: dict[str, object] = {
+            "model": self.model,
+            "messages": request.messages,
+            "stream": False,
+            "temperature": 0,
+            "max_tokens": self.settings.paratera_max_tokens,
+        }
+        try:
+            async with asyncio.timeout(self.settings.total_timeout_seconds):
+                async with self._semaphore:
+                    payload = await self._request_json("POST", "/chat/completions", json_body=body)
+        except TimeoutError as exc:
+            raise ProviderTimeout("Paratera total deadline exceeded") from exc
+        choices = payload.get("choices")
+        if not isinstance(choices, list) or not choices:
+            raise ProviderUnavailable("Paratera response did not contain choices")
+        message = choices[0].get("message", {})
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            raise ProviderUnavailable("Paratera response did not contain model content")
+        return _strip_markdown_fences(content)
+
+    async def aclose(self) -> None:
+        await self._client.aclose()

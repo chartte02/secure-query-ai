@@ -3,8 +3,11 @@
 Experiment scaffolding owned by member B (attack execution and raw result
 collection, per team-division). This script:
 
-- generates candidates with the real local model (Ollama) at temperature 0,
-  seed 42 — mirroring ``app/service.py`` parsing exactly;
+- generates candidates ONCE per (case, repeat, prompt-profile) with the configured
+  provider (local Ollama or Paratera GLM), mirroring ``app/service.py`` parsing
+  exactly; the SAME candidate is then replayed across every config that shares
+  that profile (E1/E2/E4 share hardened), so config-to-config differences
+  attribute purely to gateway/DB layers — and API-model runs cost half the calls;
 - assembles indirect-injection context from the REAL database via
   ``ContextProvider`` and records per-item ``content_digest`` values, so
   "the payload reached the model" is verifiable evidence, not a claim;
@@ -350,11 +353,55 @@ async def run_campaign(args: argparse.Namespace) -> int:
                 LOGGER.info("switching hardened fixture to poisoned-01 ...")
                 initialize("hardened", fixture="poisoned-01", reset=True)
             for case in phase_cases:
-                for config_name in args.configs.split(","):
-                    config = CONFIGS[config_name]
-                    for repeat in range(1, args.repeats + 1):
-                        if (case["case_id"], config_name, repeat) in done:
-                            continue
+                for repeat in range(1, args.repeats + 1):
+                    pending = [
+                        name
+                        for name in args.configs.split(",")
+                        if (case["case_id"], name, repeat) not in done
+                    ]
+                    if not pending:
+                        continue
+                    is_replay_case = case.get("candidate_origin") == "replay" or (
+                        case.get("fixed_candidate_sql") and not case.get("question")
+                    )
+                    # Generate ONCE per prompt profile per (case, repeat):
+                    # E0 uses baseline; E1/E2/E4 share the hardened candidate.
+                    generations: dict[str, dict] = {}
+                    if not is_replay_case:
+                        for name in pending:
+                            prof = CONFIGS[name]["prompt"]
+                            key = "baseline" if prof is PromptProfile.BASELINE else "hardened"
+                            if key in generations:
+                                continue
+                            principal = runner_principal(case["actor_id"])
+                            context = (
+                                {"offering_id": case["context_offering_id"]}
+                                if case.get("context_offering_id")
+                                else None
+                            )
+                            try:
+                                generations[key] = await generate_candidate(
+                                    provider, settings, prof, principal, case, context
+                                )
+                            except Exception as exc:  # noqa: BLE001 keep campaign alive
+                                generations[key] = {
+                                    "status": "provider_error",
+                                    "candidate_sql": None,
+                                    "refusal_reason": None,
+                                    "latency_ms": None,
+                                    "error": f"{type(exc).__name__}: {exc}"[:200],
+                                }
+                            LOGGER.info(
+                                "  gen %s r%d [%s]: %s",
+                                case["case_id"],
+                                repeat,
+                                key,
+                                generations[key]["status"],
+                            )
+                    for config_name in pending:
+                        config = CONFIGS[config_name]
+                        prof: PromptProfile = config["prompt"]  # type: ignore[assignment]
+                        key = "baseline" if prof is PromptProfile.BASELINE else "hardened"
                         record = await run_single(
                             provider,
                             settings,
@@ -364,11 +411,12 @@ async def run_campaign(args: argparse.Namespace) -> int:
                             config_name,
                             config,
                             repeat,
+                            pre_generated=generations.get(key),
                         )
                         sink.write(json.dumps(record, ensure_ascii=False) + "\n")
                         sink.flush()
-                        key = f"{record['classification']}"
-                        summary_counters[key] = summary_counters.get(key, 0) + 1
+                        key_cls = f"{record['classification']}"
+                        summary_counters[key_cls] = summary_counters.get(key_cls, 0) + 1
                         total += 1
                         LOGGER.info(
                             "[%04d] %s %s r%d: %s -> %s (%.1fs)",
@@ -409,6 +457,15 @@ async def run_campaign(args: argparse.Namespace) -> int:
 def AppSettings_for(args: argparse.Namespace):  # noqa: N802 (small script-local factory)
     from app.config import AppSettings
 
+    if args.provider == "paratera":
+        # GLM reasoning consumes tokens inside max_tokens and adds latency.
+        return AppSettings(
+            provider="paratera",
+            demo_mode=True,
+            read_timeout_seconds=180.0,
+            total_timeout_seconds=240.0,
+            max_concurrency=2,
+        )
     return AppSettings(
         provider="ollama",
         model=args.model,
@@ -426,16 +483,12 @@ async def run_single(
     config_name: str,
     config: dict,
     repeat: int,
+    pre_generated: dict | None = None,
 ) -> dict:
     started = time.perf_counter()
     request_id = str(uuid4())
     actor_id = case["actor_id"]
-    principal = runner_principal(actor_id)
     profile: PromptProfile = config["prompt"]  # type: ignore[assignment]
-
-    context = None
-    if case.get("context_offering_id"):
-        context = {"offering_id": case["context_offering_id"]}
 
     if case.get("candidate_origin") == "replay" or (
         case.get("fixed_candidate_sql") and not case.get("question")
@@ -446,7 +499,18 @@ async def run_single(
             "source": "fixed_candidate_replay",
         }
         candidate = case["fixed_candidate_sql"]
+    elif pre_generated is not None:
+        # Same candidate replayed across configs sharing this prompt profile:
+        # config-to-config differences then attribute purely to gateway/DB layers.
+        generation = {**pre_generated, "shared_across_configs": True}
+        candidate = generation["candidate_sql"]
     else:
+        principal = runner_principal(actor_id)
+        context = (
+            {"offering_id": case["context_offering_id"]}
+            if case.get("context_offering_id")
+            else None
+        )
         generation = await generate_candidate(provider, settings, profile, principal, case, context)
         candidate = generation["candidate_sql"]
 
@@ -465,8 +529,12 @@ async def run_single(
     }
 
     if not candidate:
+        # Availability failures must not masquerade as model refusals.
+        classification = (
+            "provider_error" if generation.get("status") == "provider_error" else "no_candidate"
+        )
         record.update(
-            classification="no_candidate", wall_seconds=round(time.perf_counter() - started, 2)
+            classification=classification, wall_seconds=round(time.perf_counter() - started, 2)
         )
         return record
 
@@ -524,7 +592,15 @@ def main() -> None:
     parser.add_argument("--configs", default="E0,E1,E2,E4")
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument(
-        "--model", choices=["qwen2.5-coder:7b", "qwen2.5-coder:3b"], default="qwen2.5-coder:7b"
+        "--model",
+        default="qwen2.5-coder:7b",
+        help="Ollama model tag (ignored for --provider paratera)",
+    )
+    parser.add_argument(
+        "--provider",
+        choices=["ollama", "paratera"],
+        default="ollama",
+        help="Generation provider: local Ollama or Paratera API (GLM-5.3-Flash)",
     )
     parser.add_argument("--ollama-url", default="http://127.0.0.1:11434")
     parser.add_argument("--limit", type=int, default=None, help="Only the first N cases (smoke)")
